@@ -1,0 +1,10 @@
+moc_*
+qrc_*
+ui_*
+*.o
+object_script*
+release/*
+debug/*
+Makefile*
+jEle
+jEle.pro.*
