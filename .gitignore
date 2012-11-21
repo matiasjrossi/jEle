@@ -1,10 +1,26 @@
-moc_*
-qrc_*
-ui_*
+# C++ objects and libs
+
+*.slo
+*.lo
 *.o
+*.a
+*.la
+*.lai
+*.so
+*.dll
+*.dylib
+
+# Qt-es
+
+*.pro.user
+*.pro.user.*
+moc_*.cpp
+qrc_*.cpp
+Makefile
+*-build-*
+
+ui_*
 object_script*
 release/*
 debug/*
-Makefile*
 jEle
-jEle.pro.*
