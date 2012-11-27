@@ -1,9 +1,10 @@
 #include "material.h"
 
-Material::Material(const QColor &kA, const QColor &kS, const QColor &kD, const float &q) :
+Material::Material(const QColor &kA, const QColor &kS, const QColor &kD, const QColor &kE, const float &q) :
     kA(kA),
     kS(kS),
     kD(kD),
+    kE(kE),
     q(q)
 {
 }
@@ -21,6 +22,11 @@ void Material::setKS(const QColor &kS)
 void Material::setKD(const QColor &kD)
 {
     Material::kD = kD;
+}
+
+void Material::setKE(const QColor &kE)
+{
+    Material::kE = kE;
 }
 
 void Material::setQ(const float &q)
@@ -41,6 +47,11 @@ QColor Material::getKS() const
 QColor Material::getKD() const
 {
     return kD;
+}
+
+QColor Material::getKE() const
+{
+    return kE;
 }
 
 float Material::getQ() const

@@ -5,24 +5,24 @@
 Light::Light() :
     iS(Qt::white),
     iD(Qt::white),
-    pos(new Vertex(RANDCOORD, RANDCOORD, RANDCOORD)),
-    rotateWithCamera(false)
+    iA(Qt::white),
+    pos(new Vertex(RANDCOORD, RANDCOORD, RANDCOORD))
 {
 }
 
-Light::Light(const QColor &iS, const QColor &iD, const Vertex &pos, const bool &rotateWithCamera) :
+Light::Light(const QColor &iS, const QColor &iD, const QColor &iA, const Vertex &pos) :
     iS(iS),
     iD(iD),
-    pos(new Vertex(pos)),
-    rotateWithCamera(rotateWithCamera)
+    iA(iA),
+    pos(new Vertex(pos))
 {
 }
 
 Light::Light(Light *l) :
     iS(l->iS),
     iD(l->iD),
-    pos(new Vertex(l->pos)),
-    rotateWithCamera(l->rotateWithCamera)
+    iA(l->iA),
+    pos(new Vertex(l->pos))
 {
 }
 
@@ -41,16 +41,16 @@ void Light::setIS(const QColor &iS)
     Light::iS = iS;
 }
 
+void Light::setIA(const QColor &iA)
+{
+    Light::iA = iA;
+}
+
 void Light::setPos(const Vertex &pos)
 {
     Vertex *old = Light::pos;
     Light::pos = new Vertex(pos);
     delete old;
-}
-
-void Light::setRotateWithCamera(const bool &rotateWithCamera)
-{
-    Light::rotateWithCamera = rotateWithCamera;
 }
 
 QColor Light::getID() const
@@ -63,6 +63,11 @@ QColor Light::getIS() const
     return iS;
 }
 
+QColor Light::getIA() const
+{
+    return iA;
+}
+
 Vertex Light::getPos() const
 {
     return *pos;
@@ -71,9 +76,4 @@ Vertex Light::getPos() const
 Vertex *Light::getPosPtr()
 {
     return pos;
-}
-
-bool Light::isRotateWithCamera() const
-{
-    return rotateWithCamera;
 }

@@ -5,13 +5,12 @@
 #include <QList>
 #include "transformation.h"
 
-class Viewport;
-class Renderer;
-class ObjectModel;
+class GLViewport;
+//class ObjectModel;
 class QTimer;
 class QPushButton;
 class Material;
-class LightsContext;
+class Light;
 class Vertex;
 
 namespace Ui {
@@ -29,23 +28,19 @@ protected:
 
 private:
     Ui::MainWindow *ui;
-    Viewport *vp;
-    Renderer *renderer;
-    ObjectModel *om;
+    GLViewport *vp;
     QTimer *timer;
     QPushButton *background;
     Material *objectMaterial;
-    LightsContext *lightsContext;
+    std::vector<Light*> lightsContext;
     QList<Transformation*> *transformations;
     QString vertex2String(Vertex v);
-//    QString matrix2String(QMatrix4x4 *m);
     bool isAnimated;
 
 private slots:
     void on_actionOpen_triggered();
     void on_actionAnimation_toggled(bool);
     void on_actionToggle_wireframe_toggled(bool);
-    void reRender();
     void rotate(double x, double y);
     void autoRotate();
     void changeBackgroundColor();
@@ -56,10 +51,10 @@ private slots:
     void changeLightSpecular();
     void changeLightAmbient();
     void changeLightPosition();
-    void changeLightRotateWithCamera(bool);
     void changeObjectAmbient();
     void changeObjectDiffuse();
     void changeObjectSpecular();
+    void changeObjectEmission();
     void changeObjectShininess(double);
     void addTransformation();
     void deleteSelectedTransformation();

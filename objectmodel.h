@@ -48,6 +48,13 @@ public:
     Vertex getNormalized(){ double norm = sqrt(pow(_x,2)+pow(_y,2)+pow(_z,2)); return Vertex(_x/norm, _y/norm, _z/norm); };
     Vertex getDistance(Vertex o){return o-this;};
 
+    void getArray(float *array) {
+        array[0] = _x;
+        array[1] = _y;
+        array[2] = _z;
+        array[3] = 1.0f;
+    }
+
 private:
     double _x, _y, _z;
 };

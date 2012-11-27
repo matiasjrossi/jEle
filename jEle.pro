@@ -1,30 +1,26 @@
 HEADERS += \
-    viewport.h \
     transformation.h \
     suropener.h \
-    renderer.h \
-    phongmodel.h \
     objectmodel.h \
     material.h \
     mainwindow.h \
-    lightscontext.h \
-    light.h
+    light.h \
+    glviewport.h
 
 SOURCES += \
-    viewport.cpp \
     transformation.cpp \
     suropener.cpp \
-    renderer.cpp \
-    phongmodel.cpp \
     objectmodel.cpp \
     material.cpp \
     mainwindow.cpp \
     main.cpp \
-    lightscontext.cpp \
-    light.cpp
+    light.cpp \
+    glviewport.cpp
 
 FORMS += \
     mainwindow.ui
 
 RESOURCES += \
     icons.qrc
+
+QT += opengl
