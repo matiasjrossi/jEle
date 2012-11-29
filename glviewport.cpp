@@ -3,6 +3,9 @@
 #include "material.h"
 #include <QDebug>
 
+#define min(A,B) (A>B ? B : A)
+#define max(A,B) (A<B ? B : A)
+
 GLViewport::GLViewport(QWidget *parent) :
     QGLWidget(parent),
     backgroundColor(QColor(0,25,40)),
@@ -122,7 +125,9 @@ void GLViewport::resizeGL(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
+    double hor = max(static_cast<double>(w)/static_cast<double>(h),1.0);
+    double ver = max(static_cast<double>(h)/static_cast<double>(w),1.0);
+    glOrtho(-hor, hor, -ver, ver, -2.0, 2.0);
 }
 
 void GLViewport::resetLights(std::vector<Light*> & lights)
