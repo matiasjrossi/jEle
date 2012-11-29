@@ -183,24 +183,9 @@ void MainWindow::on_actionToggle_wireframe_toggled(bool s)
     vp->setWireframeVisibility(s);
 }
 
-void MainWindow::rotate(double x, double y)
-{
-    vp->changeRotation(vp->getRotationX()+x, vp->getRotationY()+y);
-}
-
-void MainWindow::zoom(int z)
-{
-//    vp->zoom(z);
-}
-
-void MainWindow::shift(double x, double y)
-{
-//    vp->shift(x, y);
-}
-
 void MainWindow::autoRotate()
 {
-    rotate(360.0/(FPS*4), 360.0/(FPS*40));
+    vp->increaseRotation(360.0/(FPS*4), 360.0/(FPS*40));
 }
 
 void MainWindow::addLight()

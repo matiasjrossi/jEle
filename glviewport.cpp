@@ -61,10 +61,10 @@ void GLViewport::setWireframeVisibility(bool v)
     updateGL();
 }
 
-void GLViewport::changeRotation(double x, double y)
+void GLViewport::increaseRotation(double x, double y)
 {
-    rotX = x;
-    rotY = y;
+    rotX += x;
+    rotY += y;
     updateGL();
 }
 

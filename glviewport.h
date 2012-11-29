@@ -22,7 +22,7 @@ public:
     bool getWireframeVisibility() const;
     void setWireframeVisibility(bool);
 
-    void changeRotation(double x, double y);
+    void increaseRotation(double x, double y);
     double getRotationX() const;
     double getRotationY() const;
 
