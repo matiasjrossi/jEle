@@ -78,13 +78,15 @@ double GLViewport::getRotationY() const
 void GLViewport::initializeGL()
 {
     glShadeModel(GL_SMOOTH);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_LIGHTING);
 }
 
 void GLViewport::paintGL()
 {
     qglClearColor(backgroundColor);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (objectModel != NULL) {
 
