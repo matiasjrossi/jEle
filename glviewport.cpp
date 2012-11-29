@@ -164,7 +164,7 @@ void GLViewport::paintGL()
 
         glBegin(GL_TRIANGLES);
 
-        for (unsigned i = 0; i<objectModel->getTriangles().size(); i++) {
+        for (int i = 0; i<objectModel->getTriangles().size(); i++) {
             GLfloat vertex[4];
             objectModel->getTriangles().at(i)->normal().getArray(vertex);
             glNormal3fv(vertex);
