@@ -31,6 +31,11 @@ protected:
     void paintGL();
     void resizeGL(int w, int h);
 
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void wheelEvent(QWheelEvent *);
+
 private:
     void loadMaterial();
 
@@ -40,7 +45,13 @@ private:
 
     double rotX;
     double rotY;
+    double shiftX;
+    double shiftY;
+    double zoom;
     bool wireframeVisibility;
+
+    QPoint lastMousePos;
+    bool shiftMode;
 
 };
 

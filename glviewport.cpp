@@ -2,6 +2,7 @@
 #include "light.h"
 #include "material.h"
 #include <QDebug>
+#include <QWheelEvent>
 
 #define min(A,B) (A>B ? B : A)
 #define max(A,B) (A<B ? B : A)
@@ -13,8 +14,14 @@ GLViewport::GLViewport(QWidget *parent) :
     objectModel(NULL),
     rotX(0.0),
     rotY(0.0),
-    wireframeVisibility(false)
+    shiftX(0.0),
+    shiftY(0.0),
+    zoom(1.0),
+    wireframeVisibility(false),
+    shiftMode(false)
 {
+    setMouseTracking(true);
+    setCursor(Qt::OpenHandCursor);
 }
 
 QColor GLViewport::getBackgroundColor() const
@@ -78,6 +85,51 @@ double GLViewport::getRotationY() const
     return rotY;
 }
 
+void GLViewport::mousePressEvent(QMouseEvent *e)
+{
+    if (e->type() == QMouseEvent::MouseButtonDblClick && e->button() == Qt::LeftButton) {
+        shiftMode = true;
+        setCursor(Qt::SizeAllCursor);
+    } else if (e->type() == QMouseEvent::MouseButtonPress && e->button() == Qt::LeftButton) {
+        shiftMode = false;
+        setCursor(Qt::ClosedHandCursor);
+    }
+    lastMousePos = e->pos();
+}
+
+void GLViewport::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (!shiftMode)
+        if (e->button() == Qt::LeftButton)
+            setCursor(Qt::OpenHandCursor);
+}
+
+void GLViewport::mouseMoveEvent(QMouseEvent *e)
+{
+    QPoint deltas = e->pos()-lastMousePos;
+    if (shiftMode) {
+        shiftX += 2.0 * static_cast<double>(deltas.x())/min(width(),height());
+        shiftY -= 2.0 * static_cast<double>(deltas.y())/min(width(),height());
+        updateGL();
+    } else {
+        if(e->buttons() & Qt::LeftButton)
+        {
+            rotX += 360.0 * static_cast<double>(deltas.x())/width();
+            rotY += 360.0 * static_cast<double>(deltas.y())/height();
+            updateGL();
+        }
+    }
+    lastMousePos = e->pos();
+}
+
+void GLViewport::wheelEvent(QWheelEvent *e)
+{
+    zoom += double(e->delta())/120.0/20.0;
+    if (zoom > 2.0) zoom = 2.0;
+    if (zoom < 0.1) zoom = 0.1;
+    updateGL();
+}
+
 void GLViewport::initializeGL()
 {
     glShadeModel(GL_SMOOTH);
@@ -96,9 +148,17 @@ void GLViewport::paintGL()
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        // Rotate
+
+        // And shift the object
+        glTranslated(shiftX, shiftY, 0.0);
+
+        // Then apply zoom
+        glScaled(zoom, zoom, zoom);
+
+        // Rotate first
         glRotated(rotX, 1.0, 0.0, 0.0);
         glRotated(rotY, 0.0, 1.0, 0.0);
+
 
         loadMaterial();
 
