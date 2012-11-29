@@ -131,6 +131,8 @@ void GLViewport::resetLights(std::vector<Light*> & lights)
     qreal color[4];
     GLfloat colorF[4];
     GLfloat position[4];
+    for (unsigned i=0; i<8; i++)
+        glDisable(names[i]);
     if (!lights.empty()) {
         for (unsigned i=0; i<lights.size(); i++) {
             glEnable(names[i]);
