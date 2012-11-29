@@ -6,7 +6,6 @@
 #include "transformation.h"
 
 class GLViewport;
-//class ObjectModel;
 class QTimer;
 class QPushButton;
 class Material;
@@ -41,7 +40,6 @@ private slots:
     void on_actionOpen_triggered();
     void on_actionAnimation_toggled(bool);
     void on_actionToggle_wireframe_toggled(bool);
-    void rotate(double x, double y);
     void autoRotate();
     void changeBackgroundColor();
     void addLight();
@@ -60,8 +58,6 @@ private slots:
     void deleteSelectedTransformation();
     void updateTransformationUI();
     void readTransformationUI();
-    void zoom(int);
-    void shift(double, double);
 };
 
 #endif // MAINWINDOW_H

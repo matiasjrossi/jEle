@@ -39,11 +39,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->dockWidgetContents->layout()->addWidget(toolBar);
 
-    // Mouse events for the viewport
-//    connect(vp, SIGNAL(mouseDrag(double,double)), this, SLOT(rotate(double,double)));
-//    connect(vp, SIGNAL(mouseWheel(int)), this, SLOT(zoom(int)));
-//    connect(vp, SIGNAL(objectShift(double,double)), this, SLOT(shift(double, double)));
-
     // Background button setup
     background->setText("Background");
     QWidget *stretch = new QWidget(toolBar);
