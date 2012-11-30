@@ -202,6 +202,8 @@ void GLViewport::resetLights(std::vector<Light*> & lights)
     for (unsigned i=0; i<8; i++)
         glDisable(names[i]);
     if (!lights.empty()) {
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
         for (unsigned i=0; i<lights.size(); i++) {
             glEnable(names[i]);
             // Ambient
