@@ -4,6 +4,8 @@
 #include <QList>
 #include <QVector4D>
 
+class Triangle;
+
 class Vertex
 {
 public:
@@ -17,6 +19,8 @@ public:
     void setX(double x);
     void setY(double y);
     void setZ(double z);
+
+    void addTriangleBackReference(Triangle*);
 
     QVector4D toQVector() const;
     void setQVector(QVector4D);
@@ -35,8 +39,11 @@ public:
 
     void getArray(float *array) const;
 
+    Vertex getNormal() const;
+
 private:
     double _x, _y, _z;
+    QList<Triangle*> referencedBy;
 };
 
 #endif // VERTEX_H

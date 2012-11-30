@@ -7,6 +7,9 @@ Triangle::Triangle(Vertex *a, Vertex *b, Vertex *c) :
     _c(c),
     _normal(Vertex(Vertex::crossProduct(*_a, *_b, *_c).getNormalized()))
 {
+    a->addTriangleBackReference(this);
+    b->addTriangleBackReference(this);
+    c->addTriangleBackReference(this);
 }
 
 Vertex* Triangle::a()

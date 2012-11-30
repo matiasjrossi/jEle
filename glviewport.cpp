@@ -169,12 +169,19 @@ void GLViewport::paintGL()
 
         for (int i = 0; i<objectModel->getTriangles().size(); i++) {
             GLfloat vertex[4];
-            objectModel->getTriangles().at(i)->normal().getArray(vertex);
+
+            objectModel->getTriangles().at(i)->a()->getNormal().getArray(vertex);
             glNormal3fv(vertex);
             objectModel->getTriangles().at(i)->a()->getArray(vertex);
             glVertex4fv(vertex);
+
+            objectModel->getTriangles().at(i)->b()->getNormal().getArray(vertex);
+            glNormal3fv(vertex);
             objectModel->getTriangles().at(i)->b()->getArray(vertex);
             glVertex4fv(vertex);
+
+            objectModel->getTriangles().at(i)->c()->getNormal().getArray(vertex);
+            glNormal3fv(vertex);
             objectModel->getTriangles().at(i)->c()->getArray(vertex);
             glVertex4fv(vertex);
         }

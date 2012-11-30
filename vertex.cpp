@@ -1,12 +1,14 @@
 #include "vertex.h"
 
+#include "triangle.h"
 #include <cmath>
 #include <QDebug>
 
 Vertex::Vertex(double x, double y, double z) :
     _x(x),
     _y(y),
-    _z(z)
+    _z(z),
+    referencedBy()
 {
 }
 
@@ -14,7 +16,8 @@ Vertex::Vertex(double x, double y, double z) :
 Vertex::Vertex(Vertex *o) :
     _x(o->_x),
     _y(o->_y),
-    _z(o->_z)
+    _z(o->_z),
+    referencedBy()
 {
 }
 
@@ -46,6 +49,11 @@ void Vertex::setY(double y)
 void Vertex::setZ(double z)
 {
     Vertex::_z = z;
+}
+
+void Vertex::addTriangleBackReference(Triangle *t)
+{
+    referencedBy.push_back(t);
 }
 
 QVector4D Vertex::toQVector() const
@@ -118,4 +126,14 @@ void Vertex::getArray(float *array) const
     array[3] = 1.0f;
 }
 
+Vertex Vertex::getNormal() const
+{
+    Vertex n(0,0,0);
+    if (referencedBy.size() > 0) {
+        for (int i = 0; i < referencedBy.size(); i++)
+            n = n + referencedBy.at(i)->normal();
+        n = n / referencedBy.size();
+    }
+    return n;
+}
 
