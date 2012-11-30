@@ -17,7 +17,7 @@ public:
     Vertex orthoCenter() const;
 
 private:
-    Vertex *_a, *_b, *_c;
+    Vertex *_a, *_b, *_c, _normal;
 };
 
 

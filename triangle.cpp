@@ -4,7 +4,8 @@
 Triangle::Triangle(Vertex *a, Vertex *b, Vertex *c) :
     _a(a),
     _b(b),
-    _c(c)
+    _c(c),
+    _normal(Vertex(Vertex::crossProduct(*_a, *_b, *_c).getNormalized()))
 {
 }
 
@@ -25,7 +26,7 @@ Vertex* Triangle::c()
 
 Vertex Triangle::normal() const
 {
-    return Vertex(Vertex::crossProduct(*_a, *_b, *_c).getNormalized());
+    return _normal;
 }
 
 Vertex Triangle::orthoCenter() const
