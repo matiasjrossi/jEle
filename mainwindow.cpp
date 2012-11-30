@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "objectmodel.h"
+#include "vertex.h"
 #include "suropener.h"
 #include <QTimer>
 #include <QFileDialog>

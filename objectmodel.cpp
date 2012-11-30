@@ -1,8 +1,9 @@
 #include "objectmodel.h"
 
-#include <QDebug>
 #include <QString>
 #include <map>
+#include "triangle.h"
+#include "vertex.h"
 
 ObjectModel::ObjectModel()
 {

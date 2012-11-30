@@ -1,5 +1,8 @@
 #include "transformation.h"
+
 #include <limits>
+#include <cmath>
+#include "vertex.h"
 
 #define PI 3.14159265359
 

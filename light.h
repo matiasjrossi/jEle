@@ -2,7 +2,7 @@
 #define LIGHT_H
 
 #include <QColor>
-#include "objectmodel.h"
+#include "vertex.h"
 
 class Light
 {

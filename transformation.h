@@ -2,7 +2,8 @@
 #define TRANSFORMATION_H
 
 #include <QMatrix4x4>
-#include "objectmodel.h"
+
+class Vertex;
 
 class Transformation
 {

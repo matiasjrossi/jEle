@@ -5,7 +5,9 @@ HEADERS += \
     material.h \
     mainwindow.h \
     light.h \
-    glviewport.h
+    glviewport.h \
+    triangle.h \
+    vertex.h
 
 SOURCES += \
     transformation.cpp \
@@ -15,7 +17,9 @@ SOURCES += \
     mainwindow.cpp \
     main.cpp \
     light.cpp \
-    glviewport.cpp
+    glviewport.cpp \
+    triangle.cpp \
+    vertex.cpp
 
 FORMS += \
     mainwindow.ui

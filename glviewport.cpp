@@ -3,6 +3,9 @@
 #include "material.h"
 #include <QDebug>
 #include <QWheelEvent>
+#include "objectmodel.h"
+#include "vertex.h"
+#include "triangle.h"
 
 #define min(A,B) (A>B ? B : A)
 #define max(A,B) (A<B ? B : A)
