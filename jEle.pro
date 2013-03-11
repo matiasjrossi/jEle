@@ -1,17 +1,17 @@
 HEADERS += \
     transformation.h \
-    suropener.h \
     objectmodel.h \
     material.h \
     mainwindow.h \
     light.h \
     glviewport.h \
     triangle.h \
-    vertex.h
+    vertex.h \
+    surreader.h \
+    objreader.h
 
 SOURCES += \
     transformation.cpp \
-    suropener.cpp \
     objectmodel.cpp \
     material.cpp \
     mainwindow.cpp \
@@ -19,7 +19,9 @@ SOURCES += \
     light.cpp \
     glviewport.cpp \
     triangle.cpp \
-    vertex.cpp
+    vertex.cpp \
+    surreader.cpp \
+    objreader.cpp
 
 FORMS += \
     mainwindow.ui

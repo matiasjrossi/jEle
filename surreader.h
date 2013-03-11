@@ -6,7 +6,7 @@
 
 class ObjectModel;
 
-class SUROpener
+class SURReader
 {
 public:
     static ObjectModel *openSUR(QString fileName);
@@ -22,15 +22,6 @@ private:
         QList<Incidence> &getIncidences();
         QList<Coordinate> &getCoordinates();
     private:
-        class LineReader
-        {
-        public:
-            LineReader(QString);
-            QList<QString> getWords();
-        private:
-            QList<QString> words;
-        };
-
         typedef enum {INITIAL = 0, GROUPS, INCIDENCE, COORDINATES, VOLUME} State;
         Parser::State state;
         QList<Group> groups;
@@ -39,10 +30,11 @@ private:
         QList<Coordinate> coordinates;
         int coordinateCount;
 
-        void parseLine(QString);
+        unsigned lineno;
+        QString fileName;
+
         void parseHeader(QString);
-        bool header(QString);
-        void removeUselessBlanks(QString &);
+        bool isHeader(QString);
         void dispatch(QString);
         void parseGroup(QString);
         void parseIncidence(QString);

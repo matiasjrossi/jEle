@@ -9,7 +9,7 @@ class Triangle;
 class Vertex
 {
 public:
-    Vertex(double x, double y, double z);
+    Vertex(double x, double y, double z, double w = 1.0);
     Vertex(Vertex *o);
 
     double x() const;

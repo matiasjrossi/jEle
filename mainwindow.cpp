@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "objectmodel.h"
 #include "vertex.h"
-#include "suropener.h"
+#include "surreader.h"
 #include <QTimer>
 #include <QFileDialog>
 #include <QPushButton>
@@ -13,6 +13,7 @@
 #include "light.h"
 #include <QToolBar>
 #include "glviewport.h"
+#include "objreader.h"
 
 #define FPS 50
 
@@ -150,12 +151,20 @@ void MainWindow::on_actionOpen_triggered()
     bool wasAnimated = isAnimated;
     if (wasAnimated)
         ui->actionAnimation->toggle();
-    QString filepath = QFileDialog::getOpenFileName(this, QString("Select the surface to load"), NULL, "Surfaces (*.sur *.SUR)");
+    QString filepath = QFileDialog::getOpenFileName(this, QString("Select the surface to load"), NULL, "All supported formats (*.sur *.SUR *.obj *.OBJ); Surfaces (*.sur *.SUR); Wavefront OBJ (*.obj *.OBJ");
     if (filepath != NULL) {
-        ObjectModel *old = vp->getObjectModel();
-        vp->setObjectModel(SUROpener::openSUR(filepath));
-        if (old != NULL)
-            delete old;
+        if (filepath.endsWith(".sur", Qt::CaseInsensitive)) {
+            ObjectModel *old = vp->getObjectModel();
+            vp->setObjectModel(SURReader::openSUR(filepath));
+            if (old != NULL)
+                delete old;
+        } else
+        if (filepath.endsWith(".obj", Qt::CaseInsensitive)) {
+            ObjectModel *old = vp->getObjectModel();
+            vp->setObjectModel(OBJReader::openOBJ(filepath));
+            if (old != NULL)
+                delete old;
+        }
     }
     if (wasAnimated)
         ui->actionAnimation->toggle();

@@ -10,6 +10,10 @@
 *.dll
 *.dylib
 
+# OSX
+.DS_Store
+.Trash
+
 # Qt-es
 
 *.pro.user

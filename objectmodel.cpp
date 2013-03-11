@@ -48,7 +48,7 @@ double max(double a, double b)
     return (a>b?a:b);
 }
 
-void ObjectModel::addVertex(double x, double y, double z)
+void ObjectModel::addVertex(double x, double y, double z, double w)
 {
     if (vertexes.empty())
     {
@@ -65,7 +65,7 @@ void ObjectModel::addVertex(double x, double y, double z)
         maxY = max(maxY,y);
         maxZ = max(maxZ,z);
     }
-    vertexes.push_back(new Vertex(x, y, z));
+    vertexes.push_back(new Vertex(x, y, z, w));
 }
 
 void ObjectModel::addTriangle(Triangle *t)
@@ -73,9 +73,11 @@ void ObjectModel::addTriangle(Triangle *t)
     triangles.push_back(t);
 }
 
-void ObjectModel::addTriangle(int a, int b, int c)
+Triangle *ObjectModel::addTriangle(int a, int b, int c)
 {
-    triangles.push_back(new Triangle(vertexes.at(a), vertexes.at(b), vertexes.at(c)));
+    Triangle *toAdd = new Triangle(vertexes.at(a), vertexes.at(b), vertexes.at(c));
+    triangles.push_back(toAdd);
+    return toAdd;
 }
 
 QList<Triangle*> &ObjectModel::getTriangles()

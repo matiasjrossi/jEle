@@ -11,9 +11,9 @@ public:
     ObjectModel();
     ObjectModel(ObjectModel *o);
     ~ObjectModel();
-    void addVertex(double x, double y, double z);
+    void addVertex(double x, double y, double z, double w = 1.0);
     void addTriangle(Triangle*);
-    void addTriangle(int a, int b, int c);
+    Triangle *addTriangle(int a, int b, int c);
     QList<Triangle*> &getTriangles();
     QList<Vertex*> &getVertexes();
     void normalize();

@@ -4,10 +4,10 @@
 #include <cmath>
 #include <QDebug>
 
-Vertex::Vertex(double x, double y, double z) :
-    _x(x),
-    _y(y),
-    _z(z),
+Vertex::Vertex(double x, double y, double z, double w) :
+    _x(x/w),
+    _y(y/w),
+    _z(z/w),
     referencedBy()
 {
 }
@@ -58,14 +58,14 @@ void Vertex::addTriangleBackReference(Triangle *t)
 
 QVector4D Vertex::toQVector() const
 {
-    return QVector4D(_x, _y, _z, 1);
+    return QVector4D(_x, _y, _z, 1.0);
 }
 
 void Vertex::setQVector(QVector4D v)
 {
-    _x = v.x();
-    _y = v.y();
-    _z = v.z();
+    _x = v.x()/v.w();
+    _y = v.y()/v.w();
+    _z = v.z()/v.w();
 }
 
 Vertex Vertex::operator + (const Vertex o) const
