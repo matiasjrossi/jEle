@@ -24,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
     timer(new QTimer(this)), // used to tick the auto-rotate animation
     background(new QPushButton(this)),
     objectMaterial(new Material(QColor(135,160,180), QColor(255,255,255), QColor(170, 200, 225), QColor(0,0,0), 20.0f)),
-    transformations(new QList<Transformation*>()),
     isAnimated(false)
 {
     ui->setupUi(this);
@@ -83,42 +82,6 @@ MainWindow::MainWindow(QWidget *parent) :
     vp->resetLights(lightsContext);
     updateLightButtons();
 
-    //Transformations tab
-    connect(ui->transAddButton, SIGNAL(released()), this, SLOT(addTransformation()));
-    connect(ui->transDeleteButton, SIGNAL(released()), this, SLOT(deleteSelectedTransformation()));
-    connect(ui->transListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateTransformationUI()));
-
-    // Common
-    connect(ui->transTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(readTransformationUI()));
-    connect(ui->transCoordinatesComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(readTransformationUI()));
-
-    // Linear
-    connect(ui->transA1, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transA2, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transA3, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transA4, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transB1, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transB2, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transB3, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transB4, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transC1, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transC2, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transC3, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transC4, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transD1, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transD2, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transD3, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-    connect(ui->transD4, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-
-    // Twisting
-    connect(ui->twistingSpinsSpinBox, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-
-    // Bending
-    connect(ui->bendingRadiusSpinBox, SIGNAL(valueChanged(double)), this, SLOT(readTransformationUI()));
-
-
-
-    updateTransformationUI();
     vp->setMaterial(objectMaterial);
 
 
@@ -158,12 +121,14 @@ void MainWindow::on_actionOpen_triggered()
             vp->setObjectModel(SURReader::openSUR(filepath));
             if (old != NULL)
                 delete old;
+            ui->objectTab->setEnabled(true);
         } else
         if (filepath.endsWith(".obj", Qt::CaseInsensitive)) {
             ObjectModel *old = vp->getObjectModel();
             vp->setObjectModel(OBJReader::openOBJ(filepath));
             if (old != NULL)
                 delete old;
+            ui->objectTab->setEnabled(false);
         }
     }
     if (wasAnimated)
@@ -373,191 +338,4 @@ void MainWindow::changeLightPosition()
         ui->lightsListWidget->currentItem()->setText(vertex2String(l->getPos()));
         vp->resetLights(lightsContext);
     }
-}
-
-void MainWindow::addTransformation()
-{
-    Transformation *t = new Transformation();
-    transformations->append(t);
-    ui->transListWidget->setCurrentItem(new QListWidgetItem(t->toString(), ui->transListWidget));
-    if (!isAnimated) vp->updateGL();
-}
-
-void MainWindow::deleteSelectedTransformation()
-{
-    unsigned pos = ui->transListWidget->currentRow();
-    delete (ui->transListWidget->takeItem(pos)); // This fires an event that calls updateTransformationUI().
-    transformations->removeAt(pos); //Don't remove the transformation before that event is processed!
-    if (!isAnimated) vp->updateGL();
-}
-
-void MainWindow::readTransformationUI()
-{
-    int pos = ui->transListWidget->currentRow();
-    if (pos != -1) {
-        Transformation *t = transformations->at(pos);
-        int transformationType = 10 + ui->transTypeComboBox->currentIndex();
-        t->setTransformationType(transformationType);
-        ui->linearProperties->setVisible(false);
-        ui->twistingProperties->setVisible(false);
-        ui->bendingProperties->setVisible(false);
-        switch (transformationType) {
-            case Transformation::TRANSFORMATION_LINEAR: {
-                ui->linearProperties->setVisible(true);
-                QVector4D a;
-                QVector4D b;
-                QVector4D c;
-                QVector4D d;
-                a.setX(ui->transA1->value());
-                a.setY(ui->transA2->value());
-                a.setZ(ui->transA3->value());
-                a.setW(ui->transA4->value());
-                b.setX(ui->transB1->value());
-                b.setY(ui->transB2->value());
-                b.setZ(ui->transB3->value());
-                b.setW(ui->transB4->value());
-                c.setX(ui->transC1->value());
-                c.setY(ui->transC2->value());
-                c.setZ(ui->transC3->value());
-                c.setW(ui->transC4->value());
-                d.setX(ui->transD1->value());
-                d.setY(ui->transD2->value());
-                d.setZ(ui->transD3->value());
-                d.setW(ui->transD4->value());
-                QMatrix4x4 *m = t->getMatrix();
-                m->setRow(0, a);
-                m->setRow(1, b);
-                m->setRow(2, c);
-                m->setRow(3, d);
-                }
-                break;
-            case Transformation::TRANSFORMATION_TAPPERING:
-                break;
-            case Transformation::TRANSFORMATION_TWISTING:
-                ui->twistingProperties->setVisible(true);
-                t->setSpins(ui->twistingSpinsSpinBox->value());
-                break;
-            case Transformation::TRANSFORMATION_BENDING:
-                ui->bendingProperties->setVisible(true);
-                t->setRadius(ui->bendingRadiusSpinBox->value());
-                break;
-        }
-
-        // Common
-        t->setTransformCoordinates(ui->transCoordinatesComboBox->currentIndex());
-        ui->transListWidget->currentItem()->setText(t->toString());
-        if (!isAnimated) vp->updateGL();
-    }
-}
-
-void MainWindow::updateTransformationUI()
-{
-    int pos = ui->transListWidget->currentRow();
-    if (pos == -1) {
-        // Set to linear
-        ui->transTypeComboBox->setCurrentIndex(0);
-        ui->linearProperties->setVisible(true);
-        ui->twistingProperties->setVisible(false);
-        ui->bendingProperties->setVisible(false);
-
-        // Reset Linear options
-        ui->transA1->setValue(0.0);
-        ui->transA2->setValue(0.0);
-        ui->transA3->setValue(0.0);
-        ui->transA4->setValue(0.0);
-        ui->transB1->setValue(0.0);
-        ui->transB2->setValue(0.0);
-        ui->transB3->setValue(0.0);
-        ui->transB4->setValue(0.0);
-        ui->transC1->setValue(0.0);
-        ui->transC2->setValue(0.0);
-        ui->transC3->setValue(0.0);
-        ui->transC4->setValue(0.0);
-        ui->transD1->setValue(0.0);
-        ui->transD2->setValue(0.0);
-        ui->transD3->setValue(0.0);
-        ui->transD4->setValue(0.0);
-
-        // Reset Common options
-        ui->transCoordinatesComboBox->setCurrentIndex(0);
-
-    } else {
-        ui->linearProperties->setVisible(false);
-        ui->twistingProperties->setVisible(false);
-        ui->bendingProperties->setVisible(false);
-        // Get the transformation
-        Transformation *t = transformations->at(pos);
-        switch (t->getTransformationType()) {
-            case Transformation::TRANSFORMATION_LINEAR: {
-                ui->linearProperties->setVisible(true);
-                QMatrix4x4 *m = t->getMatrix();
-                QVector4D a = m->row(0);
-                QVector4D b = m->row(1);
-                QVector4D c = m->row(2);
-                QVector4D d = m->row(3);
-                ui->transA1->setValue(a.x());
-                ui->transA2->setValue(a.y());
-                ui->transA3->setValue(a.z());
-                ui->transA4->setValue(a.w());
-                ui->transB1->setValue(b.x());
-                ui->transB2->setValue(b.y());
-                ui->transB3->setValue(b.z());
-                ui->transB4->setValue(b.w());
-                ui->transC1->setValue(c.x());
-                ui->transC2->setValue(c.y());
-                ui->transC3->setValue(c.z());
-                ui->transC4->setValue(c.w());
-                ui->transD1->setValue(d.x());
-                ui->transD2->setValue(d.y());
-                ui->transD3->setValue(d.z());
-                ui->transD4->setValue(d.w());
-                }
-                break;
-            case Transformation::TRANSFORMATION_TAPPERING:
-                break;
-            case Transformation::TRANSFORMATION_TWISTING:
-                ui->twistingProperties->setVisible(true);
-                ui->twistingSpinsSpinBox->setValue(t->getSpins());
-                break;
-            case Transformation::TRANSFORMATION_BENDING:
-                ui->bendingProperties->setVisible(true);
-                ui->bendingRadiusSpinBox->setValue(t->getRadius());
-                break;
-        }
-        // Common
-        ui->transTypeComboBox->blockSignals(true);
-        ui->transTypeComboBox->setCurrentIndex(t->getTransformationType() - 10);
-        ui->transTypeComboBox->blockSignals(false);
-        ui->transCoordinatesComboBox->blockSignals(true);
-        ui->transCoordinatesComboBox->setCurrentIndex(t->getTransformCoordinates());
-        ui->transCoordinatesComboBox->blockSignals(false);
-    }
-    // Disable/enable the whole UI depending on pos == -1
-    bool valid = (pos != -1);
-    // Common
-    ui->transTypeComboBox->setEnabled(valid);
-    ui->transDeleteButton->setEnabled(valid);
-    ui->transCoordinatesComboBox->setEnabled(valid);
-    // Linear
-    ui->transA1->setEnabled(valid);
-    ui->transA2->setEnabled(valid);
-    ui->transA3->setEnabled(valid);
-    ui->transA4->setEnabled(valid);
-    ui->transB1->setEnabled(valid);
-    ui->transB2->setEnabled(valid);
-    ui->transB3->setEnabled(valid);
-    ui->transB4->setEnabled(valid);
-    ui->transC1->setEnabled(valid);
-    ui->transC2->setEnabled(valid);
-    ui->transC3->setEnabled(valid);
-    ui->transC4->setEnabled(valid);
-    ui->transD1->setEnabled(valid);
-    ui->transD2->setEnabled(valid);
-    ui->transD3->setEnabled(valid);
-    ui->transD4->setEnabled(valid);
-    // Tappering
-    // Twisting
-    ui->twistingSpinsSpinBox->setEnabled(valid);
-    // Bending
-    ui->bendingRadiusSpinBox->setEnabled(valid);
 }

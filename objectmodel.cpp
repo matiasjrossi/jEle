@@ -2,41 +2,10 @@
 
 #include <QString>
 #include <map>
-#include "triangle.h"
+#include "polygon.h"
 #include "vertex.h"
+#include <QDebug>
 
-ObjectModel::ObjectModel()
-{
-}
-
-ObjectModel::ObjectModel(ObjectModel *o)
-{
-    std::map<Vertex*,Vertex*> vMap;
-    for (int i=0; i<o->vertexes.size(); i++)
-    {
-        Vertex *newVertex = new Vertex(o->vertexes.at(i));
-        vertexes.push_back(newVertex);
-        vMap[o->vertexes.at(i)] = newVertex;
-    }
-    for (int i=0; i<o->triangles.size(); i++)
-    {
-        Triangle *oldTriangle = o->triangles.at(i);
-        triangles.push_back(new Triangle(vMap[oldTriangle->a()], vMap[oldTriangle->b()], vMap[oldTriangle->c()]));
-    }
-}
-
-ObjectModel::~ObjectModel()
-{
-    while (!triangles.empty()) {
-        delete triangles.front();
-        triangles.pop_front();
-    }
-
-    while (!vertexes.empty()) {
-        delete vertexes.front();
-        vertexes.pop_front();
-    }
-}
 
 double min(double a, double b)
 {
@@ -48,9 +17,61 @@ double max(double a, double b)
     return (a>b?a:b);
 }
 
-void ObjectModel::addVertex(double x, double y, double z, double w)
+double max(double a, double b, double c)
 {
-    if (vertexes.empty())
+    return max(max(a, b), c);
+}
+
+/*
+ *
+ */
+
+ObjectModel::ObjectModel()
+{
+}
+
+ObjectModel::ObjectModel(ObjectModel *o)
+{
+    std::map<Vertex*,Vertex*> vMap;
+    for (int i=0; i<o->vertices.size(); i++)
+    {
+        Vertex *newVertex = new Vertex(o->vertices.at(i));
+        vertices.push_back(newVertex);
+        vMap[o->vertices.at(i)] = newVertex;
+    }
+    for (int i=0; i<o->normals.size(); i++)
+    {
+        Vertex *newNormal = new Vertex(o->normals.at(i));
+        normals.push_back(newNormal);
+        vMap[o->normals.at(i)] = newNormal;
+    }
+
+    for (int i=0; i<o->polygons.size(); i++)
+        polygons.push_back(o->polygons.at(i)->mapClone(vMap));
+}
+
+ObjectModel::~ObjectModel()
+{
+    while (!polygons.empty()) {
+        delete polygons.front();
+        polygons.pop_front();
+    }
+
+    while (!vertices.empty()) {
+        delete vertices.front();
+        vertices.pop_front();
+    }
+
+    while (!normals.empty()) {
+        delete normals.front();
+        normals.pop_front();
+    }
+}
+
+
+void ObjectModel::addVertex(double x, double y, double z)
+{
+    if (vertices.empty())
     {
         minX = maxX = x;
         minY = maxY = y;
@@ -65,34 +86,57 @@ void ObjectModel::addVertex(double x, double y, double z, double w)
         maxY = max(maxY,y);
         maxZ = max(maxZ,z);
     }
-    vertexes.push_back(new Vertex(x, y, z, w));
+    vertices.push_back(new Vertex(x, y, z));
 }
 
-void ObjectModel::addTriangle(Triangle *t)
+void ObjectModel::addVertex(double x, double y, double z, double w)
 {
-    triangles.push_back(t);
+    addVertex(x/w, y/w, z/w);
 }
 
-Triangle *ObjectModel::addTriangle(int a, int b, int c)
+void ObjectModel::addNormal(double x, double y, double z)
 {
-    Triangle *toAdd = new Triangle(vertexes.at(a), vertexes.at(b), vertexes.at(c));
-    triangles.push_back(toAdd);
+    normals.push_back(new Vertex(x, y, z));
+}
+
+Polygon *ObjectModel::addPolygon(QList<int> vertex_indexes)
+{
+    return addPolygon(vertex_indexes, QList<int>());
+}
+
+Polygon *ObjectModel::addPolygon(QList<int> vertex_indexes, QList<int> normal_indexes)
+{
+    QList<Vertex*> _normals;
+    for (int i=0; i<normal_indexes.size(); i++) {
+        int ni = normal_indexes.at(i);
+        if (ni<normals.size())
+            _normals.push_back(normals.at(ni));
+        else
+            qDebug() << "[ObjectModel::addPolygon()] normal_indexes contains an index that is not valid (" << ni << "|" << normals.size() << ")";
+    }
+
+    QList<Vertex*> _vertices;
+    for (int i=0; i<vertex_indexes.size(); i++) {
+        int vi = vertex_indexes.at(i);
+        if (vi<vertices.size())
+            _vertices.push_back(vertices.at(vi));
+        else
+            qDebug() << "[ObjectModel::addPolygon()] vertex_indexes contains an index that is not valid";
+    }
+
+    Polygon *toAdd = new Polygon(_vertices, _normals);
+    polygons.push_back(toAdd);
     return toAdd;
 }
 
-QList<Triangle*> &ObjectModel::getTriangles()
+QList<Polygon*> &ObjectModel::getPolygons()
 {
-    return triangles;
+    return polygons;
 }
 
-QList<Vertex*> &ObjectModel::getVertexes()
+QList<Vertex*> &ObjectModel::getVertices()
 {
-    return vertexes;
-}
-
-double max(double a, double b, double c)
-{
-    return max(max(a, b), c);
+    return vertices;
 }
 
 void ObjectModel::normalize()
@@ -102,10 +146,10 @@ void ObjectModel::normalize()
     double halfScale = scale / 2;
     double xOffset = minX + scaleX/2, yOffset = minY + scaleY/2, zOffset = minZ + scaleZ/2;
 
-    for (int i=0; i<vertexes.size(); i++)
+    for (int i=0; i<vertices.size(); i++)
     {
-        vertexes.at(i)->setX((vertexes.at(i)->x() - xOffset)/halfScale);
-        vertexes.at(i)->setY((vertexes.at(i)->y() - yOffset)/halfScale);
-        vertexes.at(i)->setZ((vertexes.at(i)->z() - zOffset)/halfScale);
+        vertices.at(i)->setX((vertices.at(i)->x() - xOffset)/halfScale);
+        vertices.at(i)->setY((vertices.at(i)->y() - yOffset)/halfScale);
+        vertices.at(i)->setZ((vertices.at(i)->z() - zOffset)/halfScale);
     }
 }

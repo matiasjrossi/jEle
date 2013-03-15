@@ -2,7 +2,7 @@
 #define OBJECTMODEL_H
 #include <QList>
 
-class Triangle;
+class Polygon;
 class Vertex;
 
 class ObjectModel
@@ -11,15 +11,18 @@ public:
     ObjectModel();
     ObjectModel(ObjectModel *o);
     ~ObjectModel();
-    void addVertex(double x, double y, double z, double w = 1.0);
-    void addTriangle(Triangle*);
-    Triangle *addTriangle(int a, int b, int c);
-    QList<Triangle*> &getTriangles();
-    QList<Vertex*> &getVertexes();
+    void addVertex(double x, double y, double z);
+    void addVertex(double x, double y, double z, double w);
+    void addNormal(double x, double y, double z);
+    Polygon *addPolygon(QList<int> vertex_indexes);
+    Polygon *addPolygon(QList<int> vertex_indexes, QList<int> normal_indexes);
+    QList<Polygon*> &getPolygons();
+    QList<Vertex*> &getVertices();
     void normalize();
 private:
-    QList<Triangle*> triangles;
-    QList<Vertex*> vertexes;
+    QList<Polygon*> polygons;
+    QList<Vertex*> vertices;
+    QList<Vertex*> normals;
     double minX, maxX, minY, maxY, minZ, maxZ;
 };
 

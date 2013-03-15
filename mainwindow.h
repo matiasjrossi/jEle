@@ -32,7 +32,6 @@ private:
     QPushButton *background;
     Material *objectMaterial;
     std::vector<Light*> lightsContext;
-    QList<Transformation*> *transformations;
     QString vertex2String(Vertex v);
     bool isAnimated;
 
@@ -54,10 +53,6 @@ private slots:
     void changeObjectSpecular();
     void changeObjectEmission();
     void changeObjectShininess(double);
-    void addTransformation();
-    void deleteSelectedTransformation();
-    void updateTransformationUI();
-    void readTransformationUI();
 };
 
 #endif // MAINWINDOW_H

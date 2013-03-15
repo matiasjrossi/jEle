@@ -1,5 +1,5 @@
-#ifndef WAVEFRONTOBJECT_H
-#define WAVEFRONTOBJECT_H
+#ifndef OBJREADER_H
+#define OBJREADER_H
 
 #include "vertex.h"
 #include <QString>
@@ -20,7 +20,7 @@ private:
         typedef struct {double x, y, z, w;} V;
         typedef struct {double x, y, z;} VT;
         typedef struct {double x, y, z;} VN;
-        typedef struct {QList<int> v,vt,vn;} F;
+        typedef struct {QList<int> v, vt, vn;} F;
         QList<V> &getV();
         QList<VT> &getVT();
         QList<VN> &getVN();
@@ -35,8 +35,7 @@ private:
         QList<VT> vt;
         QList<VN> vn;
         QList<F> f;
-
     };
 };
 
-#endif // WAVEFRONTOBJECT_H
+#endif // OBJREADER_H

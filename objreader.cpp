@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QStringList>
 #include "objectmodel.h"
-#include "triangle.h"
+#include "polygon.h"
 
 ObjectModel *OBJReader::openOBJ(QString filename)
 {
@@ -13,14 +13,15 @@ ObjectModel *OBJReader::openOBJ(QString filename)
         Parser::V v = parser.getV().at(i);
         om->addVertex(v.x, v.y, v.z, v.w);
     }
+    for (int i=0; i<parser.getVN().size(); i++)
+    {
+        Parser::VN vn = parser.getVN().at(i);
+        om->addNormal(vn.x, vn.y, vn.z);
+    }
     for (int i=0; i<parser.getF().size(); i++)
     {
         Parser::F f = parser.getF().at(i);
-        Triangle *asd = om->addTriangle(f.v.at(0)-1, f.v.at(1)-1, f.v.at(2)-1);
-        if (f.vn.size() > 0)
-            asd->setVNs(*om->getVertexes().at(f.vn.at(0)),
-                        *om->getVertexes().at(f.vn.at(1)),
-                        *om->getVertexes().at(f.vn.at(2)));
+        om->addPolygon(f.v, f.vn);
     }
     om->normalize();
     return om;
@@ -66,7 +67,19 @@ OBJReader::Parser::Parser(QString filename)
             if (items[0] == "vt") { // Texture vertex
             } else
             if (items[0] == "vn") { // Normal vertex
+                if (items.size() < 4) {
+                    qDebug() << "[OBJReader::Parser::Parser] ERROR: Ignoring malformed vn line:" << line;
+                } else {
+                    if (items.size() > 4) {
+                        qDebug() << "[OBJReader::Parser::Parser] WARNING: Malformed vn line:" << line << "- Discarding extra values.";
+                    }
 
+                    VN _vn;
+                    _vn.x = items[1].toDouble();
+                    _vn.y = items[2].toDouble();
+                    _vn.z = items[3].toDouble();
+                    vn.push_back(_vn);
+                }
             } else
             if (items[0] == "vp") { // Parameter space vertices - NOT supported
 
@@ -75,30 +88,49 @@ OBJReader::Parser::Parser(QString filename)
                 if (items.size() < 4) {
                     qDebug() << "[OBJReader::Parser::Parser] ERROR: Ignoring malformed f line:" << line;
                 } else {
-                    if (items.size() > 4) {
-                        qDebug() << "[OBJReader::Parser::Parser] WARNING: Malformed f line:" << line << "- Discarding extra values.";
-                    }
+//                    if (items.size() > 4) {
+//                        qDebug() << "[OBJReader::Parser::Parser] WARNING: Malformed f line:" << line << "- Discarding extra values.";
+//                    }
 
                     F _f;
                     switch (items[1].split('/').size()) {
                         case 1:
-                            for (int i = 1; i<=3; i++) {
-                                _f.v.push_back(items[i].split('/')[0].toInt());
-                                f.push_back(_f);
+                            for (int i = 1; i<items.size(); i++) {
+                                _f.v.push_back(items[i].split('/')[0].toInt() - 1);
                             }
+                            f.push_back(_f);
                             break;
-                        case 3:
-                            for (int i = 1; i<=3; i++) {
-                                _f.v.push_back(items[i].split('/')[0].toInt());
-                                _f.vn.push_back(items[i].split('/')[1].toInt());
-                                f.push_back(_f);
+                        case 2:
+                            for (int i = 1; i<items.size(); i++) {
+                                _f.v.push_back(items[i].split('/')[0].toInt() - 1);
+                                _f.vt.push_back(items[i].split('/')[1].toInt() - 1);
                             }
+                            f.push_back(_f);
+                        case 3:
+                            for (int i = 1; i<items.size(); i++) {
+                                _f.v.push_back(items[i].split('/')[0].toInt() - 1);
+                                _f.vt.push_back(items[i].split('/')[1].toInt() - 1);
+                                _f.vn.push_back(items[i].split('/')[2].toInt() - 1);
+                            }
+                            f.push_back(_f);
                             break;
                         default:
                             qDebug() << "[OBJReader::Parser::Parser] WARNING: Wrong count of slashes in f line:" << line << ". Ignoring.";
                     }
 
                 }
+            } else
+            if (items[0] == "mtllib") { // Material library
+
+            } else
+            if (items[0] == "usemtl") { // Material use definition
+
+            } else
+            if (items[0] == "s") { // S
+
+            } else
+            if (items[0] == "g") { // Group definition
+
             } else
                 qDebug() << "Unsuported item identifier in line " << lineno.top() << ": " << items[0];
         }

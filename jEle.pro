@@ -1,24 +1,22 @@
 HEADERS += \
-    transformation.h \
     objectmodel.h \
     material.h \
     mainwindow.h \
     light.h \
     glviewport.h \
-    triangle.h \
+    polygon.h \
     vertex.h \
     surreader.h \
     objreader.h
 
 SOURCES += \
-    transformation.cpp \
     objectmodel.cpp \
     material.cpp \
     mainwindow.cpp \
     main.cpp \
     light.cpp \
     glviewport.cpp \
-    triangle.cpp \
+    polygon.cpp \
     vertex.cpp \
     surreader.cpp \
     objreader.cpp

@@ -16,7 +16,11 @@ ObjectModel *SURReader::openSUR(QString fileName)
     for (int i=0; i<parser.getIncidences().size(); i++)
     {
         Parser::Incidence in= parser.getIncidences().at(i);
-        om->addTriangle(in.a-1, in.b-1, in.c-1);
+        QList<int> vertices;
+        vertices.append(in.a-1);
+        vertices.append(in.b-1);
+        vertices.append(in.c-1);
+        om->addPolygon(vertices);
     }
     om->normalize();
     return om;

@@ -5,7 +5,7 @@
 #include <QWheelEvent>
 #include "objectmodel.h"
 #include "vertex.h"
-#include "triangle.h"
+#include "polygon.h"
 
 #define min(A,B) (A>B ? B : A)
 #define max(A,B) (A<B ? B : A)
@@ -165,28 +165,38 @@ void GLViewport::paintGL()
 
         loadMaterial();
 
-        glBegin(GL_TRIANGLES);
 
-        for (int i = 0; i<objectModel->getTriangles().size(); i++) {
-            GLfloat vertex[4];
+        GLfloat vertex[4];
+        for (int i = 0; i<objectModel->getPolygons().size(); i++) {
+            Polygon *polygon = objectModel->getPolygons().at(i);
 
-            objectModel->getTriangles().at(i)->a()->getNormal().getArray(vertex);
-            glNormal3fv(vertex);
-            objectModel->getTriangles().at(i)->a()->getArray(vertex);
-            glVertex4fv(vertex);
+            // glBegin()
+            switch(polygon->size()) {
+                case 0: case 1: case 2:
+                    qDebug() << "[GLViewport::paintGL()] : polygon size is " << polygon->size() << ". Ignoring.";
+                    continue;
+                case 3:
+                    glBegin(GL_TRIANGLES);
+                    break;
+                case 4:
+                    glBegin(GL_QUADS);
+                    break;
+                default:
+                    glBegin(GL_POLYGON);
+                    break;
+            }
 
-            objectModel->getTriangles().at(i)->b()->getNormal().getArray(vertex);
-            glNormal3fv(vertex);
-            objectModel->getTriangles().at(i)->b()->getArray(vertex);
-            glVertex4fv(vertex);
+            // glVertex*(), etc.
+            for (int j = 0; j<polygon->size(); j++) {
+                polygon->getNormal(j).getArray(vertex);
+                glNormal3fv(vertex);
+                polygon->getVertex(j).getArray(vertex);
+                glVertex4fv(vertex);
+            }
 
-            objectModel->getTriangles().at(i)->c()->getNormal().getArray(vertex);
-            glNormal3fv(vertex);
-            objectModel->getTriangles().at(i)->c()->getArray(vertex);
-            glVertex4fv(vertex);
+            // glEnd()
+            glEnd();
         }
-
-        glEnd();
     }
 }
 

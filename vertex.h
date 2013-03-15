@@ -4,12 +4,12 @@
 #include <QList>
 #include <QVector4D>
 
-class Triangle;
+class Polygon;
 
 class Vertex
 {
 public:
-    Vertex(double x, double y, double z, double w = 1.0);
+    Vertex(double x, double y, double z);
     Vertex(Vertex *o);
 
     double x() const;
@@ -20,7 +20,7 @@ public:
     void setY(double y);
     void setZ(double z);
 
-    void addTriangleBackReference(Triangle*);
+    void addPolygonBackReference(Polygon*);
 
     QVector4D toQVector() const;
     void setQVector(QVector4D);
@@ -39,11 +39,11 @@ public:
 
     void getArray(float *array) const;
 
-    Vertex getNormal() const;
+    Vertex getSyntheticNormal() const;
 
 private:
     double _x, _y, _z;
-    QList<Triangle*> referencedBy;
+    QList<Polygon*> referencedBy;
 };
 
 #endif // VERTEX_H
