@@ -6,14 +6,17 @@
 #include "objectmodel.h"
 #include "vertex.h"
 #include "polygon.h"
+#include <QImageReader>
+#include <QMessageBox>
 
 #define min(A,B) (A>B ? B : A)
 #define max(A,B) (A<B ? B : A)
 
 GLViewport::GLViewport(QWidget *parent) :
     QGLWidget(parent),
+    lastPolygonMaterial(NULL),
     backgroundColor(QColor(0,25,40)),
-    material(NULL),
+    defaultMaterial(NULL),
     objectModel(NULL),
     rotX(0.0),
     rotY(0.0),
@@ -38,14 +41,14 @@ void  GLViewport::setBackgroundColor(QColor &color)
     updateGL();
 }
 
-Material *GLViewport::getMaterial() const
+Material *GLViewport::getDefaultMaterial() const
 {
-    return material;
+    return defaultMaterial;
 }
 
-void GLViewport::setMaterial(Material *m)
+void GLViewport::setDefaultMaterial(Material *m)
 {
-    material = m;
+    defaultMaterial = m;
     updateGL();
 }
 
@@ -139,6 +142,11 @@ void GLViewport::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_LIGHTING);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
 void GLViewport::paintGL()
@@ -163,12 +171,14 @@ void GLViewport::paintGL()
         glRotated(rotY, 0.0, 1.0, 0.0);
 
 
-        loadMaterial();
+        loadDefaultMaterial();
 
 
         GLfloat vertex[4];
         for (int i = 0; i<objectModel->getPolygons().size(); i++) {
             Polygon *polygon = objectModel->getPolygons().at(i);
+
+            loadPolygonMaterial(polygon->getMaterial());
 
             // glBegin()
             switch(polygon->size()) {
@@ -188,6 +198,10 @@ void GLViewport::paintGL()
 
             // glVertex*(), etc.
             for (int j = 0; j<polygon->size(); j++) {
+                if (polygon->hasTextureMapping()) {
+                    polygon->getTextureVertex(j).getArray(vertex);
+                    glTexCoord2fv(vertex);
+                }
                 polygon->getNormal(j).getArray(vertex);
                 glNormal3fv(vertex);
                 polygon->getVertex(j).getArray(vertex);
@@ -243,7 +257,54 @@ void GLViewport::resetLights(std::vector<Light*> & lights)
     updateGL();
 }
 
-void GLViewport::loadMaterial() {
+void GLViewport::loadPolygonMaterial(Material *material) {
+    if (lastPolygonMaterial != material) {
+        if (material == NULL)
+            loadDefaultMaterial();
+        else {
+            loadMaterial(material);
+            loadTextureContext(material);
+            lastPolygonMaterial = material;
+        }
+    }
+}
+
+void GLViewport::loadTextureContext(Material *material)
+{
+    if (material->getMapD() == "") {
+        glDisable(GL_TEXTURE_2D);
+    } else {
+        QString filename = material->getMapD();
+        QImageReader fileReader(filename);
+        QImage bitmap = fileReader.read();
+        if (!bitmap.isNull()) {
+            QImage texture = convertToGLFormat(bitmap);
+            glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                         texture.width(), texture.height(),
+                         0, GL_RGBA, GL_UNSIGNED_BYTE,
+                         texture.bits());
+            glEnable(GL_TEXTURE_2D);
+        } else {
+            QMessageBox::warning(
+                    NULL,
+                    "Warning",
+                    QString("Error opening texture file: %1\n\n%2 (%3)").
+                        arg(filename).
+                        arg(fileReader.errorString()).
+                        arg(fileReader.error()));
+            material->setMapD("");
+            glDisable(GL_TEXTURE_2D);
+        }
+    }
+}
+
+void GLViewport::loadDefaultMaterial() {
+    loadMaterial(defaultMaterial);
+    glDisable(GL_TEXTURE_2D);
+    lastPolygonMaterial = NULL;
+}
+
+void GLViewport::loadMaterial(Material *material) {
     if (material != NULL) {
         qreal color[4];
         GLfloat colorF[4];

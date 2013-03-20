@@ -15,8 +15,8 @@ public:
     void resetLights(std::vector<Light*> &lights);
     QColor getBackgroundColor() const;
     void setBackgroundColor(QColor&);
-    Material *getMaterial() const;
-    void setMaterial(Material*);
+    Material *getDefaultMaterial() const;
+    void setDefaultMaterial(Material*);
     ObjectModel *getObjectModel() const;
     void setObjectModel(ObjectModel*);
     bool getWireframeVisibility() const;
@@ -37,10 +37,15 @@ protected:
     void wheelEvent(QWheelEvent *);
 
 private:
-    void loadMaterial();
+    void loadPolygonMaterial(Material *material);
+    void loadTextureContext(Material *material);
+    void loadDefaultMaterial();
+    void loadMaterial(Material *material);
+
+    Material *lastPolygonMaterial;
 
     QColor backgroundColor;
-    Material *material;
+    Material *defaultMaterial;
     ObjectModel *objectModel;
 
     double rotX;

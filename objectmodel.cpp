@@ -5,6 +5,7 @@
 #include "polygon.h"
 #include "vertex.h"
 #include <QDebug>
+#include "material.h"
 
 
 double min(double a, double b)
@@ -30,7 +31,8 @@ ObjectModel::ObjectModel()
 {
 }
 
-ObjectModel::ObjectModel(ObjectModel *o)
+ObjectModel::ObjectModel(ObjectModel *o) :
+    materials_by_name(o->materials_by_name)
 {
     std::map<Vertex*,Vertex*> vMap;
     for (int i=0; i<o->vertices.size(); i++)
@@ -45,26 +47,54 @@ ObjectModel::ObjectModel(ObjectModel *o)
         normals.push_back(newNormal);
         vMap[o->normals.at(i)] = newNormal;
     }
+    for (int i=0; i<o->materials.size(); i++)
+    {
+        Material *newMaterial = new Material(*o->materials.at(i));
+        materials.push_back(newMaterial);
+    }
+    for (int i=0; i<o->textureVertices.size(); i++)
+    {
+        Vertex *newTextureVertex = new Vertex(o->textureVertices.at(i));
+        textureVertices.push_back(newTextureVertex);
+        vMap[o->textureVertices.at(i)] = newTextureVertex;
+    }
 
     for (int i=0; i<o->polygons.size(); i++)
-        polygons.push_back(o->polygons.at(i)->mapClone(vMap));
+    {
+        polygons.push_back(
+                    o->polygons.at(i)->mapClone(
+                        vMap,
+                        materials.at(
+                            o->materials.indexOf(
+                                o->polygons.at(i)->getMaterial())
+                            )
+                        )
+                    );
+    }
+
+
 }
 
 ObjectModel::~ObjectModel()
 {
     while (!polygons.empty()) {
-        delete polygons.front();
-        polygons.pop_front();
+        delete polygons.takeFirst();
     }
 
     while (!vertices.empty()) {
-        delete vertices.front();
-        vertices.pop_front();
+        delete vertices.takeFirst();
     }
 
     while (!normals.empty()) {
-        delete normals.front();
-        normals.pop_front();
+        delete normals.takeFirst();
+    }
+
+    while (!textureVertices.empty()) {
+        delete textureVertices.takeFirst();
+    }
+
+    while (!materials.empty()) {
+        delete materials.takeFirst();
     }
 }
 
@@ -99,18 +129,33 @@ void ObjectModel::addNormal(double x, double y, double z)
     normals.push_back(new Vertex(x, y, z));
 }
 
-Polygon *ObjectModel::addPolygon(QList<int> vertex_indexes)
+void ObjectModel::addTextureVertex(double x, double y, double z)
 {
-    return addPolygon(vertex_indexes, QList<int>());
+    textureVertices.push_back(new Vertex(x, y, z));
 }
 
-Polygon *ObjectModel::addPolygon(QList<int> vertex_indexes, QList<int> normal_indexes)
+void ObjectModel::addMaterial(QString name, Material *material)
+{
+    materials_by_name[name] = materials.size();
+    materials.append(material);
+}
+
+Polygon *ObjectModel::addPolygon(QList<int> vertex_indexes)
+{
+    return addPolygon("", vertex_indexes, QList<int>(), QList<int>());
+}
+
+Polygon *ObjectModel::addPolygon(QString material, QList<int> vertex_indexes, QList<int> texture_indexes, QList<int> normal_indexes)
 {
     QList<Vertex*> _normals;
     for (int i=0; i<normal_indexes.size(); i++) {
         int ni = normal_indexes.at(i);
-        if (ni<normals.size())
-            _normals.push_back(normals.at(ni));
+        if (ni<normals.size()) {
+            if (ni<0)
+                _normals.push_back(normals.at(0));
+            else
+                _normals.push_back(normals.at(ni));
+        }
         else
             qDebug() << "[ObjectModel::addPolygon()] normal_indexes contains an index that is not valid (" << ni << "|" << normals.size() << ")";
     }
@@ -118,13 +163,32 @@ Polygon *ObjectModel::addPolygon(QList<int> vertex_indexes, QList<int> normal_in
     QList<Vertex*> _vertices;
     for (int i=0; i<vertex_indexes.size(); i++) {
         int vi = vertex_indexes.at(i);
-        if (vi<vertices.size())
-            _vertices.push_back(vertices.at(vi));
+        if (vi<vertices.size()) {
+            if (vi<0)
+                _vertices.push_back(vertices.at(0));
+            else
+                _vertices.push_back(vertices.at(vi));
+        }
         else
-            qDebug() << "[ObjectModel::addPolygon()] vertex_indexes contains an index that is not valid";
+            qDebug() << "[ObjectModel::addPolygon()] vertex_indexes contains an index that is not valid (" << vi << "|" << vertices.size() << ")";
     }
 
-    Polygon *toAdd = new Polygon(_vertices, _normals);
+    QList<Vertex*> _textureVertices;
+    for (int i=0; i<texture_indexes.size(); i++) {
+        int ti = texture_indexes.at(i);
+        if (ti<textureVertices.size()) {
+            if (ti<0)
+                _textureVertices.push_back(textureVertices.at(0));
+            else
+                _textureVertices.push_back(textureVertices.at(ti));
+        } else
+            qDebug() << "[ObjectModel::addPolygon()] texture_indexes contains an index that is not valid (" << ti << "|" << textureVertices.size() << ")";
+    }
+
+    Material *_material = NULL;
+    if (materials_by_name.contains(material))
+        _material = materials.at(materials_by_name.value(material));
+    Polygon *toAdd = new Polygon(_vertices, _textureVertices, _normals, _material);
     polygons.push_back(toAdd);
     return toAdd;
 }

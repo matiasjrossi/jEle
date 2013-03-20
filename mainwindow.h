@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QList>
-#include "transformation.h"
 
 class GLViewport;
 class QTimer;

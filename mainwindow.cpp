@@ -82,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     vp->resetLights(lightsContext);
     updateLightButtons();
 
-    vp->setMaterial(objectMaterial);
+    vp->setDefaultMaterial(objectMaterial);
 
 
     timer->setInterval(1000/FPS);
@@ -116,19 +116,22 @@ void MainWindow::on_actionOpen_triggered()
         ui->actionAnimation->toggle();
     QString filepath = QFileDialog::getOpenFileName(this, QString("Select the surface to load"), NULL, "All supported formats (*.sur *.SUR *.obj *.OBJ); Surfaces (*.sur *.SUR); Wavefront OBJ (*.obj *.OBJ");
     if (filepath != NULL) {
+        ObjectModel *_new = NULL;
+        bool mod_material;
         if (filepath.endsWith(".sur", Qt::CaseInsensitive)) {
-            ObjectModel *old = vp->getObjectModel();
-            vp->setObjectModel(SURReader::openSUR(filepath));
-            if (old != NULL)
-                delete old;
-            ui->objectTab->setEnabled(true);
-        } else
-        if (filepath.endsWith(".obj", Qt::CaseInsensitive)) {
-            ObjectModel *old = vp->getObjectModel();
-            vp->setObjectModel(OBJReader::openOBJ(filepath));
-            if (old != NULL)
-                delete old;
-            ui->objectTab->setEnabled(false);
+            _new = SURReader::openSUR(filepath);
+            mod_material = true;
+        } else if (filepath.endsWith(".obj", Qt::CaseInsensitive)) {
+            _new = OBJReader::openOBJ(filepath);
+            mod_material = false;
+        }
+
+        if (_new != NULL) {
+            ObjectModel *_old = vp->getObjectModel();
+            vp->setObjectModel(_new);
+            if (_old != NULL)
+                delete _old;
+            ui->objectTab->setEnabled(mod_material);
         }
     }
     if (wasAnimated)
@@ -240,6 +243,7 @@ void MainWindow::changeObjectAmbient()
         objectMaterial->setKA(color);
         ui->objectAmbientButton->setPalette(QPalette(color));
         ui->objectAmbientButton->setText(color.name());
+        vp->updateGL();
     }
 }
 
@@ -251,6 +255,7 @@ void MainWindow::changeObjectDiffuse()
         objectMaterial->setKD(color);
         ui->objectDiffuseButton->setPalette(QPalette(color));
         ui->objectDiffuseButton->setText(color.name());
+        vp->updateGL();
     }
 }
 
@@ -262,6 +267,7 @@ void MainWindow::changeObjectSpecular()
         objectMaterial->setKS(color);
         ui->objectSpecularButton->setPalette(QPalette(color));
         ui->objectSpecularButton->setText(color.name());
+        vp->updateGL();
     }
 }
 
@@ -273,12 +279,14 @@ void MainWindow::changeObjectEmission()
         objectMaterial->setKE(color);
         ui->objectEmissionButton->setPalette(QPalette(color));
         ui->objectEmissionButton->setText(color.name());
+        vp->updateGL();
     }
 }
 
 void MainWindow::changeObjectShininess(double d)
 {
     objectMaterial->setQ(d);
+    vp->updateGL();
 }
 
 void MainWindow::changeLightAmbient()
