@@ -224,26 +224,26 @@
               <item row="1" column="1">
                <widget class="QDoubleSpinBox" name="lightsYSpinbox">
                 <property name="minimum">
-                 <double>-2.000000000000000</double>
+                 <double>-1.000000000000000</double>
                 </property>
                 <property name="maximum">
-                 <double>2.000000000000000</double>
+                 <double>1.000000000000000</double>
                 </property>
                 <property name="singleStep">
-                 <double>0.100000000000000</double>
+                 <double>0.050000000000000</double>
                 </property>
                </widget>
               </item>
               <item row="1" column="2">
                <widget class="QDoubleSpinBox" name="lightsZSpinbox">
                 <property name="minimum">
-                 <double>-2.000000000000000</double>
+                 <double>-1.000000000000000</double>
                 </property>
                 <property name="maximum">
-                 <double>2.000000000000000</double>
+                 <double>1.000000000000000</double>
                 </property>
                 <property name="singleStep">
-                 <double>0.100000000000000</double>
+                 <double>0.050000000000000</double>
                 </property>
                </widget>
               </item>
@@ -287,13 +287,13 @@
               <item row="1" column="0">
                <widget class="QDoubleSpinBox" name="lightsXSpinbox">
                 <property name="minimum">
-                 <double>-2.000000000000000</double>
+                 <double>-1.000000000000000</double>
                 </property>
                 <property name="maximum">
-                 <double>2.000000000000000</double>
+                 <double>1.000000000000000</double>
                 </property>
                 <property name="singleStep">
-                 <double>0.100000000000000</double>
+                 <double>0.050000000000000</double>
                 </property>
                </widget>
               </item>
@@ -398,23 +398,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
-   </property>
-  </action>
-  <action name="actionToggle_wireframe">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Toggle &amp;wireframe</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle wireframe</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>

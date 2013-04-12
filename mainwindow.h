@@ -37,7 +37,6 @@ private:
 private slots:
     void on_actionOpen_triggered();
     void on_actionAnimation_toggled(bool);
-    void on_actionToggle_wireframe_toggled(bool);
     void autoRotate();
     void changeBackgroundColor();
     void addLight();

@@ -1,13 +1,14 @@
 #include "light.h"
 
-#define RANDCOORD ((rand()%40-20)/10.0)
+#define RANDCOORD ((rand()%40-20)/20.0)
 
 Light::Light() :
     iS(Qt::white),
-    iD(Qt::white),
-    iA(Qt::white),
+    iD(QColor()),
+    iA(QColor(10, 10, 10)),
     pos(new Vertex(RANDCOORD, RANDCOORD, RANDCOORD))
 {
+    iD.setHsv(rand()%100, 127+rand()%127, 255);
 }
 
 Light::Light(const QColor &iS, const QColor &iD, const QColor &iA, const Vertex &pos) :

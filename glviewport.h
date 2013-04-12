@@ -3,9 +3,10 @@
 
 #include <QtOpenGL/QGLWidget>
 #include <vector>
+#include <QMatrix4x4>
 
 class Light;
-class Material;
+#include "material.h"
 class ObjectModel;
 
 class GLViewport : public QGLWidget
@@ -19,12 +20,8 @@ public:
     void setDefaultMaterial(Material*);
     ObjectModel *getObjectModel() const;
     void setObjectModel(ObjectModel*);
-    bool getWireframeVisibility() const;
-    void setWireframeVisibility(bool);
 
     void increaseRotation(double x, double y);
-    double getRotationX() const;
-    double getRotationY() const;
 
 protected:
     void initializeGL();
@@ -35,12 +32,20 @@ protected:
     void mouseReleaseEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *);
+//    void keyPressEvent(QKeyEvent *);
 
 private:
     void loadPolygonMaterial(Material *material);
-    void loadTextureContext(Material *material);
+    void loadTexture(Material *material);
     void loadDefaultMaterial();
     void loadMaterial(Material *material);
+    void renderEnvironment();
+    void renderObject();
+    void updateCameraView();
+    void updateCameraProjection();
+    void updateLightMatrices();
+    QMatrix4x4 toQMatrix4x4(GLdouble a[]);
+    void getDoubleArray(QVector4D, GLdouble a[]);
 
     Material *lastPolygonMaterial;
 
@@ -48,15 +53,34 @@ private:
     Material *defaultMaterial;
     ObjectModel *objectModel;
 
-    double rotX;
-    double rotY;
+    QMatrix4x4 objectRotation;
     double shiftX;
     double shiftY;
-    double zoom;
-    bool wireframeVisibility;
+    double objectScale;
+    double fieldOfView;
+    double eyePositionPitch, eyePositionYaw;
+//    QVector3D eyePosition;
 
     QPoint lastMousePos;
     bool shiftMode;
+
+    QMap<QString, GLuint> textures;
+
+    Material ground, wall;
+
+    GLuint lightsList;
+
+    GLdouble cameraView[16], cameraProjection[16], lightView[16], lightProjection[16];
+
+    //Shadow mapping
+//    GLuint depthFramebuffer;
+    GLuint shadowMapTexture;
+
+    const GLuint shadowMapSize;
+
+    QVector3D firstLightPOV;
+
+//    short debugMode;
 
 };
 

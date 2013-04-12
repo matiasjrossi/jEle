@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="wireframe.png">wireframe.png</file>
         <file alias="icon.png">icon.png</file>
     </qresource>
 </RCC>

@@ -5,7 +5,7 @@ Material::Material() :
     kS(Qt::white),
     kD(QColor(204,204,204)),
     kE(Qt::black),
-    q(0)
+    q(1.0)
 {
 }
 

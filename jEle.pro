@@ -25,6 +25,9 @@ FORMS += \
     mainwindow.ui
 
 RESOURCES += \
-    icons.qrc
+    icons.qrc \
+    textures.qrc
 
 QT += opengl
+
+mac: LIBS += -framework GLUT

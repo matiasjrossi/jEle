@@ -31,12 +31,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->actionOpen->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
     ui->actionAnimation->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-    ui->actionToggle_wireframe->setIcon(QIcon(":/wireframe.png"));
 
     QToolBar *toolBar = new QToolBar();
     toolBar->addAction(ui->actionOpen);
     toolBar->addAction(ui->actionAnimation);
-    toolBar->addAction(ui->actionToggle_wireframe);
 
     ui->dockWidgetContents->layout()->addWidget(toolBar);
 
@@ -78,7 +76,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->lightsYSpinbox, SIGNAL(valueChanged(double)), this, SLOT(changeLightPosition()));
     connect(ui->lightsZSpinbox, SIGNAL(valueChanged(double)), this, SLOT(changeLightPosition()));
     addLight();
-    lightsContext.at(0)->setID(QColor(176,176,176));
+    lightsContext.at(0)->setID(QColor("#e6e0c0"));
+    lightsContext.at(0)->setPos(Vertex(0.5, 1.0, 1.0));
     vp->resetLights(lightsContext);
     updateLightButtons();
 
@@ -151,11 +150,6 @@ void MainWindow::on_actionAnimation_toggled(bool s)
     isAnimated = s;
 }
 
-void MainWindow::on_actionToggle_wireframe_toggled(bool s)
-{
-    vp->setWireframeVisibility(s);
-}
-
 void MainWindow::autoRotate()
 {
     vp->increaseRotation(360.0/(FPS*4), 360.0/(FPS*40));
@@ -187,6 +181,12 @@ QString MainWindow::vertex2String(Vertex v)
 
 void MainWindow::updateLightButtons()
 {
+    ui->lightsDiffuseButton->blockSignals(true);
+    ui->lightsSpecularButton->blockSignals(true);
+    ui->lightsAmbientButton->blockSignals(true);
+    ui->lightsXSpinbox->blockSignals(true);
+    ui->lightsYSpinbox->blockSignals(true);
+    ui->lightsZSpinbox->blockSignals(true);
     int pos = ui->lightsListWidget->currentRow();
     if (pos == -1) {
         ui->lightsDiffuseButton->setPalette(QPalette(Qt::gray));
@@ -221,6 +221,12 @@ void MainWindow::updateLightButtons()
     ui->lightsYSpinbox->setEnabled(valid);
     ui->lightsZSpinbox->setEnabled(valid);
     ui->lightsDeleteButton->setEnabled(valid);
+    ui->lightsDiffuseButton->blockSignals(false);
+    ui->lightsSpecularButton->blockSignals(false);
+    ui->lightsAmbientButton->blockSignals(false);
+    ui->lightsXSpinbox->blockSignals(false);
+    ui->lightsYSpinbox->blockSignals(false);
+    ui->lightsZSpinbox->blockSignals(false);
 }
 
 /*
