@@ -4,8 +4,9 @@
 #include <QtOpenGL/QGLWidget>
 #include <vector>
 #include <QMatrix4x4>
+#include <QVector3D>
 
-class Light;
+#include "light.h"
 #include "material.h"
 class ObjectModel;
 
@@ -13,13 +14,14 @@ class GLViewport : public QGLWidget
 {
 public:
     GLViewport(QWidget *parent);
-    void resetLights(std::vector<Light*> &lights);
+
     QColor getBackgroundColor() const;
     void setBackgroundColor(QColor&);
     Material *getDefaultMaterial() const;
     void setDefaultMaterial(Material*);
     ObjectModel *getObjectModel() const;
     void setObjectModel(ObjectModel*);
+    void setLights(std::vector<Light*> &lights);
 
     void increaseRotation(double x, double y);
 
@@ -35,16 +37,26 @@ protected:
 //    void keyPressEvent(QKeyEvent *);
 
 private:
+    void setLight(Light*);
     void loadPolygonMaterial(Material *material);
     void loadTexture(Material *material);
     void loadDefaultMaterial();
     void loadMaterial(Material *material);
+    void setLayers(int);
+
     void renderEnvironment();
     void renderObject();
+    void renderLayer(GLuint);
+    void renderOverlays();
+
     void updateCameraView();
     void updateCameraProjection();
-    void updateLightMatrices();
-    QMatrix4x4 toQMatrix4x4(GLdouble a[]);
+    void initLightProjection();
+    QMatrix4x4 getLightView(Light *);
+    void getLightView(Light *, GLdouble *);
+
+    QVector3D getObjectCenter();
+//    QMatrix4x4 toQMatrix4x4(GLdouble a[]);
     void getDoubleArray(QVector4D, GLdouble a[]);
 
     Material *lastPolygonMaterial;
@@ -54,8 +66,8 @@ private:
     ObjectModel *objectModel;
 
     QMatrix4x4 objectRotation;
-    double shiftX;
-    double shiftY;
+    double objectShiftX;
+    double objectShiftY;
     double objectScale;
     double fieldOfView;
     double eyePositionPitch, eyePositionYaw;
@@ -68,19 +80,25 @@ private:
 
     Material ground, wall;
 
-    GLuint lightsList;
+//    GLuint lightsList;
 
-    GLdouble cameraView[16], cameraProjection[16], lightView[16], lightProjection[16];
+    QMatrix4x4 cameraView, cameraProjection, lightProjection;
+    GLdouble cameraView2[16], cameraProjection2[16], lightProjection2[16];
 
     //Shadow mapping
-//    GLuint depthFramebuffer;
-    GLuint shadowMapTexture;
+    GLuint shadowMapFB;
+    GLuint shadowMapTexture, fuckTex;
+    QVector<GLuint> layers;
+    GLuint targetFB;
 
     const GLuint shadowMapSize;
 
-    QVector3D firstLightPOV;
+//    QVector3D firstLightPOV;
 
 //    short debugMode;
+
+    std::vector<Light*> lights;
+    Light dimLight;
 
 };
 

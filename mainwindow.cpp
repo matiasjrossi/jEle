@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     addLight();
     lightsContext.at(0)->setID(QColor("#e6e0c0"));
     lightsContext.at(0)->setPos(Vertex(0.5, 1.0, 1.0));
-    vp->resetLights(lightsContext);
+    vp->setLights(lightsContext);
     updateLightButtons();
 
     vp->setDefaultMaterial(objectMaterial);
@@ -161,7 +161,7 @@ void MainWindow::addLight()
     lightsContext.push_back(l);
     ui->lightsListWidget->setCurrentItem(new QListWidgetItem(vertex2String(l->getPos()), ui->lightsListWidget));
     ui->lightsAddButton->setEnabled(ui->lightsListWidget->count() < 8);
-    vp->resetLights(lightsContext);
+    vp->setLights(lightsContext);
 }
 
 void MainWindow::deleteSelectedLight()
@@ -170,7 +170,7 @@ void MainWindow::deleteSelectedLight()
     delete (ui->lightsListWidget->takeItem(pos)); // This fires an event that calls updateLightsButtons(). 
     lightsContext.erase(lightsContext.begin() + pos); //Don't remove the light before that event is processed!
     ui->lightsAddButton->setEnabled(ui->lightsListWidget->count() < 8);
-    vp->resetLights(lightsContext);
+    vp->setLights(lightsContext);
 }
 
 QString MainWindow::vertex2String(Vertex v)
@@ -306,7 +306,7 @@ void MainWindow::changeLightAmbient()
             l->setIA(color);
             ui->lightsAmbientButton->setPalette(QPalette(color));
             ui->lightsAmbientButton->setText(color.name());
-            vp->resetLights(lightsContext);
+            vp->setLights(lightsContext);
         }
     }
 }
@@ -322,7 +322,7 @@ void MainWindow::changeLightDiffuse()
             l->setID(color);
             ui->lightsDiffuseButton->setPalette(QPalette(color));
             ui->lightsDiffuseButton->setText(color.name());
-            vp->resetLights(lightsContext);
+            vp->setLights(lightsContext);
         }
     }
 }
@@ -338,7 +338,7 @@ void MainWindow::changeLightSpecular()
             l->setIS(color);
             ui->lightsSpecularButton->setPalette(QPalette(color));
             ui->lightsSpecularButton->setText(color.name());
-            vp->resetLights(lightsContext);
+            vp->setLights(lightsContext);
         }
     }
 }
@@ -350,6 +350,6 @@ void MainWindow::changeLightPosition()
         Light *l = lightsContext.at(pos);
         l->setPos(Vertex(ui->lightsXSpinbox->value(), ui->lightsYSpinbox->value(), ui->lightsZSpinbox->value()));
         ui->lightsListWidget->currentItem()->setText(vertex2String(l->getPos()));
-        vp->resetLights(lightsContext);
+        vp->setLights(lightsContext);
     }
 }
