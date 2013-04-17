@@ -34,30 +34,26 @@ protected:
     void mouseReleaseEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *);
-//    void keyPressEvent(QKeyEvent *);
 
 private:
-    void setLight(Light*);
+    void setLight(Light);
     void loadPolygonMaterial(Material *material);
     void loadTexture(Material *material);
     void loadDefaultMaterial();
     void loadMaterial(Material *material);
-    void setLayers(int);
 
     void renderEnvironment();
     void renderObject();
-    void renderLayer(GLuint);
-    void renderOverlays();
 
     void updateCameraView();
     void updateCameraProjection();
     void initLightProjection();
-    QMatrix4x4 getLightView(Light *);
+    QMatrix4x4 getLightView(Light);
     void getLightView(Light *, GLdouble *);
 
     QVector3D getObjectCenter();
-//    QMatrix4x4 toQMatrix4x4(GLdouble a[]);
     void getDoubleArray(QVector4D, GLdouble a[]);
+    Light withEyeCoords(Light *);
 
     Material *lastPolygonMaterial;
 
@@ -71,7 +67,6 @@ private:
     double objectScale;
     double fieldOfView;
     double eyePositionPitch, eyePositionYaw;
-//    QVector3D eyePosition;
 
     QPoint lastMousePos;
     bool shiftMode;
@@ -80,22 +75,13 @@ private:
 
     Material ground, wall;
 
-//    GLuint lightsList;
-
     QMatrix4x4 cameraView, cameraProjection, lightProjection;
-    GLdouble cameraView2[16], cameraProjection2[16], lightProjection2[16];
 
     //Shadow mapping
     GLuint shadowMapFB;
-    GLuint shadowMapTexture, fuckTex;
-    QVector<GLuint> layers;
-    GLuint targetFB;
+    GLuint shadowMapTexture;
 
     const GLuint shadowMapSize;
-
-//    QVector3D firstLightPOV;
-
-//    short debugMode;
 
     std::vector<Light*> lights;
     Light dimLight;

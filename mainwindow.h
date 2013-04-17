@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QList>
+#include <QVector3D>
 
 class GLViewport;
 class QTimer;
@@ -31,7 +32,7 @@ private:
     QPushButton *background;
     Material *objectMaterial;
     std::vector<Light*> lightsContext;
-    QString vertex2String(Vertex v);
+    QString vector2String(QVector3D v);
     bool isAnimated;
 
 private slots:

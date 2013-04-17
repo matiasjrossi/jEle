@@ -27,6 +27,13 @@ MainWindow::MainWindow(QWidget *parent) :
     isAnimated(false)
 {
     ui->setupUi(this);
+
+#ifdef Q_WS_MAC
+    QString macMod = QString::fromUtf8("\u2318") + QString(" +");
+    ui->labelCtrl1->setText(macMod);
+    ui->labelCtrl2->setText(macMod);
+#endif
+
     setCentralWidget(vp);
 
     ui->actionOpen->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
@@ -77,12 +84,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->lightsZSpinbox, SIGNAL(valueChanged(double)), this, SLOT(changeLightPosition()));
     addLight();
     lightsContext.at(0)->setID(QColor("#e6e0c0"));
-    lightsContext.at(0)->setPos(Vertex(0.5, 1.0, 1.0));
+    lightsContext.at(0)->setPos(QVector3D(0.5, 1.0, 1.0));
+    updateLightButtons();
     vp->setLights(lightsContext);
     updateLightButtons();
 
     vp->setDefaultMaterial(objectMaterial);
-
 
     timer->setInterval(1000/FPS);
     connect(timer, SIGNAL(timeout()), this, SLOT(autoRotate()));
@@ -159,7 +166,7 @@ void MainWindow::addLight()
 {
     Light *l = new Light();
     lightsContext.push_back(l);
-    ui->lightsListWidget->setCurrentItem(new QListWidgetItem(vertex2String(l->getPos()), ui->lightsListWidget));
+    ui->lightsListWidget->setCurrentItem(new QListWidgetItem(vector2String(l->getPos()), ui->lightsListWidget));
     ui->lightsAddButton->setEnabled(ui->lightsListWidget->count() < 8);
     vp->setLights(lightsContext);
 }
@@ -173,7 +180,7 @@ void MainWindow::deleteSelectedLight()
     vp->setLights(lightsContext);
 }
 
-QString MainWindow::vertex2String(Vertex v)
+QString MainWindow::vector2String(QVector3D v)
 {
     return QString("(%1, %2, %3)").arg(v.x()).arg(v.y()).arg(v.z());
 }
@@ -348,8 +355,8 @@ void MainWindow::changeLightPosition()
     int pos = ui->lightsListWidget->currentRow();
     if (pos != -1) {
         Light *l = lightsContext.at(pos);
-        l->setPos(Vertex(ui->lightsXSpinbox->value(), ui->lightsYSpinbox->value(), ui->lightsZSpinbox->value()));
-        ui->lightsListWidget->currentItem()->setText(vertex2String(l->getPos()));
+        l->setPos(QVector3D(ui->lightsXSpinbox->value(), ui->lightsYSpinbox->value(), ui->lightsZSpinbox->value()));
+        ui->lightsListWidget->currentItem()->setText(vector2String(l->getPos()));
         vp->setLights(lightsContext);
     }
 }

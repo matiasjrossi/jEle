@@ -2,29 +2,28 @@
 #define LIGHT_H
 
 #include <QColor>
-#include "vertex.h"
+#include <QVector3D>
 
 class Light
 {
 public:
     Light();
-    Light(QColor const &iS, QColor const &iD, QColor const &iA, const Vertex &pos);
+    Light(QColor const &iS, QColor const &iD, QColor const &iA, const QVector3D &pos);
     Light(Light *l);
-    ~Light();
     void setIS(const QColor &iS);
     void setID(const QColor &iD);
     void setIA(const QColor &iA);
-    void setPos(const Vertex &pos);
+    void setPos(const QVector3D &pos);
     QColor getIS() const;
     QColor getID() const;
     QColor getIA() const;
-    Vertex getPos() const;
-    Vertex *getPosPtr();
+    QVector3D getPos() const;
+//    Vertex *getPosPtr();
 private:
     QColor iS;
     QColor iD;
     QColor iA;
-    Vertex *pos;
+    QVector3D pos;
 };
 
 #endif // LIGHT_H

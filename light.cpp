@@ -6,16 +6,16 @@ Light::Light() :
     iS(Qt::white),
     iD(QColor()),
     iA(QColor(10, 10, 10)),
-    pos(new Vertex(RANDCOORD, RANDCOORD, RANDCOORD))
+    pos(QVector3D(RANDCOORD, RANDCOORD, RANDCOORD))
 {
     iD.setHsv(rand()%100, 127+rand()%127, 255);
 }
 
-Light::Light(const QColor &iS, const QColor &iD, const QColor &iA, const Vertex &pos) :
+Light::Light(const QColor &iS, const QColor &iD, const QColor &iA, const QVector3D &pos) :
     iS(iS),
     iD(iD),
     iA(iA),
-    pos(new Vertex(pos))
+    pos(pos)
 {
 }
 
@@ -23,13 +23,8 @@ Light::Light(Light *l) :
     iS(l->iS),
     iD(l->iD),
     iA(l->iA),
-    pos(new Vertex(l->pos))
+    pos(l->pos)
 {
-}
-
-Light::~Light()
-{
-    delete pos;
 }
 
 void Light::setID(const QColor &iD)
@@ -47,11 +42,9 @@ void Light::setIA(const QColor &iA)
     Light::iA = iA;
 }
 
-void Light::setPos(const Vertex &pos)
+void Light::setPos(const QVector3D &pos)
 {
-    Vertex *old = Light::pos;
-    Light::pos = new Vertex(pos);
-    delete old;
+    Light::pos = pos;
 }
 
 QColor Light::getID() const
@@ -69,12 +62,7 @@ QColor Light::getIA() const
     return iA;
 }
 
-Vertex Light::getPos() const
-{
-    return *pos;
-}
-
-Vertex *Light::getPosPtr()
+QVector3D Light::getPos() const
 {
     return pos;
 }

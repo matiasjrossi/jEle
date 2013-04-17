@@ -15,8 +15,6 @@
 #define min(A,B) (A>B ? B : A)
 #define max(A,B) (A<B ? B : A)
 
-#define FUCK 200
-
 #define UP_DIRECTION QVector3D(0.0, 1.0, 0.0)
 
 GLViewport::GLViewport(QWidget *parent) :
@@ -36,8 +34,7 @@ GLViewport::GLViewport(QWidget *parent) :
     ground(Material()),
     wall(Material()),
     shadowMapSize(512),
-    dimLight(Qt::black, Qt::black, QColor(30, 30, 30), Vertex(0.0, 0.0, 0.0))
-//    debugMode(0)
+    dimLight(Qt::black, Qt::black, QColor(30, 30, 30), QVector3D(0.0, 0.0, 0.0))
 {
     setMouseTracking(true);
     setCursor(Qt::OpenHandCursor);
@@ -46,8 +43,6 @@ GLViewport::GLViewport(QWidget *parent) :
     ground.setKS(Qt::black);
     wall.setMapD(":/textures/wall.png");
     wall.setKS(Qt::black);
-
-    initLightProjection();
 
     qglClearColor(backgroundColor);
 }
@@ -92,7 +87,6 @@ void GLViewport::setObjectModel(ObjectModel *om)
 void GLViewport::setLights(std::vector<Light*> & lights)
 {
     this->lights = lights;
-    setLayers(lights.size()*2+2);
     updateGL();
 }
 
@@ -112,7 +106,6 @@ void GLViewport::mousePressEvent(QMouseEvent *e)
         shiftMode = false;
         setCursor(Qt::ClosedHandCursor);
     }
-//    if (e->button() == Qt::RightButton) setFocus();
     lastMousePos = e->pos();
 }
 
@@ -154,20 +147,6 @@ void GLViewport::mouseMoveEvent(QMouseEvent *e)
     }
     lastMousePos = e->pos();
 }
-
-//void GLViewport::keyPressEvent(QKeyEvent *e)
-//{
-//    if (e->key() == Qt::Key_A)
-//        debugMode = 0;
-//    else if (e->key() == Qt::Key_S)
-//        debugMode = 1;
-//    else if (e->key() == Qt::Key_D)
-//        debugMode = 2;
-//    else if (e->key() == Qt::Key_F)
-//        debugMode = 3;
-//    updateGL();
-//    qDebug() << debugMode;
-//}
 
 void GLViewport::wheelEvent(QWheelEvent *e)
 {
@@ -292,112 +271,6 @@ void GLViewport::renderObject()
     }
 }
 
-void GLViewport::renderLayer(GLuint id)
-{
-    glBindTexture(GL_TEXTURE_2D, id);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 0.0);
-    glVertex3f(-1.0, -1.0, 0.0);
-    glTexCoord2f(1.0, 0.0);
-    glVertex3f(1.0, -1.0, 0.0);
-    glTexCoord2f(1.0, 1.0);
-    glVertex3f(1.0, 1.0, 0.0);
-    glTexCoord2f(0.0, 1.0);
-    glVertex3f(-1.0, 1.0, 0.0);
-    glEnd();
-}
-
-void GLViewport::renderOverlays()
-{
-    glPushAttrib(GL_VIEWPORT_BIT);
-
-    glViewport(0,height()-FUCK,FUCK,FUCK);
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
-    glDisable(GL_LIGHTING);
-
-    glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 0.0);
-    glVertex3f(0.0, 0.0, 0.0);
-    glTexCoord2f(1.0, 0.0);
-    glVertex3f(1.0, 0.0, 0.0);
-    glTexCoord2f(1.0, 1.0);
-    glVertex3f(1.0, 1.0, 0.0);
-    glTexCoord2f(0.0, 1.0);
-    glVertex3f(0.0, 1.0, 0.0);
-    glEnd();
-
-    glViewport(0,height()-2*FUCK,FUCK,FUCK);
-    glBindTexture(GL_TEXTURE_2D, fuckTex);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 0.0);
-    glVertex3f(0.0, 0.0, 0.0);
-    glTexCoord2f(1.0, 0.0);
-    glVertex3f(1.0, 0.0, 0.0);
-    glTexCoord2f(1.0, 1.0);
-    glVertex3f(1.0, 1.0, 0.0);
-    glTexCoord2f(0.0, 1.0);
-    glVertex3f(0.0, 1.0, 0.0);
-    glEnd();
-
-    glEnable(GL_LIGHTING);
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-
-    glPopAttrib();
-
-    for (unsigned i=0; i<layers.size(); ++i)
-    {
-        glPushAttrib(GL_VIEWPORT_BIT);
-
-        glViewport(width()-FUCK,height()-FUCK-FUCK*i,FUCK,FUCK);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-
-        glDisable(GL_LIGHTING);
-
-        glBindTexture(GL_TEXTURE_2D, layers.at(i));
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0, 0.0);
-        glVertex3f(0.0, 0.0, 0.0);
-        glTexCoord2f(1.0, 0.0);
-        glVertex3f(1.0, 0.0, 0.0);
-        glTexCoord2f(1.0, 1.0);
-        glVertex3f(1.0, 1.0, 0.0);
-        glTexCoord2f(0.0, 1.0);
-        glVertex3f(0.0, 1.0, 0.0);
-        glEnd();
-
-        glEnable(GL_LIGHTING);
-
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-
-        glPopAttrib();
-    }
-}
-
 void GLViewport::initializeGL()
 {
     glShadeModel(GL_SMOOTH);
@@ -424,230 +297,157 @@ void GLViewport::initializeGL()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glGenTextures(1, &fuckTex);
-    glBindTexture(GL_TEXTURE_2D, fuckTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, shadowMapSize, shadowMapSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     glGenFramebuffers(1, &shadowMapFB);
     glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB);
-//    glDrawBuffer(GL_NONE);
-//    glReadBuffer(GL_NONE);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMapTexture, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fuckTex, 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        qDebug() << "Framebuffer status != GL_FRAMEBUFFER_COMPLETE";
+        qDebug() << "Framebuffer status != GL_FRAMEBUFFER_COMPLETE ::" << glCheckFramebufferStatus(GL_FRAMEBUFFER);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glGenFramebuffers(1, &targetFB);
-
-    setLayers(0);
-    setLayers(lights.size()*2+2);
-
     updateCameraView();
+    initLightProjection();
 }
 
 void GLViewport::paintGL()
 {
-
-    for (unsigned i=0; i<lights.size(); i++)
-    {
-
-        // Render to get the shadow map
-        glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB);
-        glViewport(0, 0, shadowMapSize, shadowMapSize);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadMatrixd(lightProjection.constData());
-
-        QMatrix4x4 lightView = getLightView(lights.at(i));
-        glMatrixMode(GL_MODELVIEW);
-        glLoadMatrixd(lightView.constData());
-
-        glCullFace(GL_FRONT);
-        glShadeModel(GL_FLAT);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_TEXTURE_2D);
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-        renderEnvironment();
-        renderObject();
-
-
-        glCullFace(GL_BACK);
-        glShadeModel(GL_SMOOTH);
-        glEnable(GL_LIGHTING);
-        glEnable(GL_TEXTURE_2D);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-        // Prepare GL to draw to the target again
-        glBindFramebuffer(GL_FRAMEBUFFER, targetFB);
-        glViewport(0, 0, width()-2*FUCK, height());
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadMatrixd(cameraProjection.constData());
-
-        glMatrixMode(GL_MODELVIEW);
-        glLoadMatrixd(cameraView.constData());
-
-        // Render to the target with lighting and the mask
-        // Texture coordinates projection matrix.
-        static QMatrix4x4 eye2texture = QMatrix4x4(
-                    0.5f, 0.0f, 0.0f, 0.5f,
-                    0.0f, 0.5f, 0.0f, 0.5f,
-                    0.0f, 0.0f, 0.5f, 0.5f,
-                    0.0f, 0.0f, 0.0f, 1.0f);
-        QMatrix4x4 textureMatrix = eye2texture * lightProjection * lightView;
-
-        //Set up texture coordinate generation.
-        glActiveTexture(GL_TEXTURE1);
-        GLdouble a[4];
-        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-        getDoubleArray(textureMatrix.row(0), a);
-        glTexGendv(GL_S, GL_EYE_PLANE, a);
-        glEnable(GL_TEXTURE_GEN_S);
-
-        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-        getDoubleArray(textureMatrix.row(1), a);
-        glTexGendv(GL_T, GL_EYE_PLANE, a);
-        glEnable(GL_TEXTURE_GEN_T);
-
-        glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-        getDoubleArray(textureMatrix.row(2), a);
-        glTexGendv(GL_R, GL_EYE_PLANE, a);
-        glEnable(GL_TEXTURE_GEN_R);
-
-        glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-        getDoubleArray(textureMatrix.row(3), a);
-        glTexGendv(GL_Q, GL_EYE_PLANE, a);
-        glEnable(GL_TEXTURE_GEN_Q);
-
-        glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-        glEnable(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-        glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
-
-        glAlphaFunc(GL_GEQUAL, 0.99f);
-        glEnable(GL_ALPHA_TEST);
-
-        glActiveTexture(GL_TEXTURE0);
-
-        setLight(lights.at(i));
-
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, layers.at(i), 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderEnvironment();
-
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, layers.at(lights.size()+i), 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderObject();
-
-
-        glDisable(GL_TEXTURE_GEN_S);
-        glDisable(GL_TEXTURE_GEN_T);
-        glDisable(GL_TEXTURE_GEN_R);
-        glDisable(GL_TEXTURE_GEN_Q);
-
-        glDisable(GL_ALPHA_TEST);
-    }
-
     // Shadowed areas base
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, width(), height());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(cameraProjection.constData());
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(cameraView.constData());
 
-    setLight(&dimLight);
-
-    // ... for the environment
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, layers.at(layers.size()-2), 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    setLight(dimLight);
 
     renderEnvironment();
-
-    // ... for the object
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, layers.at(layers.size()-1), 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     renderObject();
 
-    // Now compose the layers to the window manager framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(FUCK, 0, width()-2*FUCK, height());
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (lights.size() > 0)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
 
-    glDisable(GL_LIGHTING);
-    glDisable(GL_DEPTH_TEST);
+        for (unsigned i=0; i<lights.size(); i++)
+        {
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-1.0, 1.0, -1.0, 1.0, 0.0, 1.0);
+            // Render to get the shadow map
+            glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB);
+            glViewport(0, 0, shadowMapSize, shadowMapSize);
+            glClear(GL_DEPTH_BUFFER_BIT);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrixd(lightProjection.constData());
 
-    float factor = 1.0f / lights.size();
+            QMatrix4x4 lightView = getLightView(withEyeCoords(lights.at(i)));
+            glMatrixMode(GL_MODELVIEW);
+            glLoadMatrixd(lightView.constData());
 
-    renderLayer(layers.at(layers.size()-2));
+            glCullFace(GL_FRONT);
+            glShadeModel(GL_FLAT);
+            glDisable(GL_LIGHTING);
+            glDisable(GL_TEXTURE_2D);
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(1.0, 1.0);
 
-//    glBlendColor(factor, factor, factor, factor);
-//    glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glColor4f(1.0, 1.0, 1.0, factor);
-    for (unsigned i=0; i < lights.size(); i++)
-        renderLayer(layers.at(i));
+            renderEnvironment();
+            renderObject();
 
-    glDisable(GL_BLEND);
-    glBlendColor(0.0, 0.0, 0.0, 0.0);
-    glBlendFunc(GL_ONE, GL_ZERO);
+            glPolygonOffset(0.0, 0.0);
+            glDisable(GL_POLYGON_OFFSET_FILL);
+            glCullFace(GL_BACK);
+            glShadeModel(GL_SMOOTH);
+            glEnable(GL_LIGHTING);
+            glEnable(GL_TEXTURE_2D);
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-//    renderLayer(layers.at(layers.size()-1));
+            // Prepare GL to draw to the target again
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glViewport(0, 0, width(), height());
 
-//    glBlendColor(factor, factor, factor, factor);
-//    glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
-//    glEnable(GL_BLEND);
-//    for (unsigned i=lights.size(); i < lights.size()*2; i++)
-//        renderLayer(layers.at(i));
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrixd(cameraProjection.constData());
 
-//    glDisable(GL_BLEND);
-//    glBlendColor(0.0, 0.0, 0.0, 0.0);
-//    glBlendFunc(GL_ONE, GL_ZERO);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadMatrixd(cameraView.constData());
 
-    renderOverlays();
+            // Render to the target with lighting and the mask
+            // Texture coordinates projection matrix.
+            static QMatrix4x4 eye2texture = QMatrix4x4(
+                        0.5f, 0.0f, 0.0f, 0.5f,
+                        0.0f, 0.5f, 0.0f, 0.5f,
+                        0.0f, 0.0f, 0.5f, 0.5f,
+                        0.0f, 0.0f, 0.0f, 1.0f);
+            QMatrix4x4 textureMatrix = eye2texture * lightProjection * lightView;
 
-    glEnable(GL_LIGHTING);
-    glEnable(GL_DEPTH_TEST);
+            //Set up texture coordinate generation.
+            glActiveTexture(GL_TEXTURE1);
+            GLdouble a[4];
+            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+            getDoubleArray(textureMatrix.row(0), a);
+            glTexGendv(GL_S, GL_EYE_PLANE, a);
+            glEnable(GL_TEXTURE_GEN_S);
 
-    ///////////
+            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+            getDoubleArray(textureMatrix.row(1), a);
+            glTexGendv(GL_T, GL_EYE_PLANE, a);
+            glEnable(GL_TEXTURE_GEN_T);
 
-    /////////
+            glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+            getDoubleArray(textureMatrix.row(2), a);
+            glTexGendv(GL_R, GL_EYE_PLANE, a);
+            glEnable(GL_TEXTURE_GEN_R);
+
+            glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+            getDoubleArray(textureMatrix.row(3), a);
+            glTexGendv(GL_Q, GL_EYE_PLANE, a);
+            glEnable(GL_TEXTURE_GEN_Q);
+
+            glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
+            glEnable(GL_TEXTURE_2D);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+            glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
+
+            glAlphaFunc(GL_GEQUAL, 0.99f);
+            glEnable(GL_ALPHA_TEST);
+
+            glActiveTexture(GL_TEXTURE0);
+
+            setLight(withEyeCoords(lights.at(i)));
+
+            renderEnvironment();
+            renderObject();
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glActiveTexture(GL_TEXTURE0);
+
+            glDisable(GL_TEXTURE_GEN_S);
+            glDisable(GL_TEXTURE_GEN_T);
+            glDisable(GL_TEXTURE_GEN_R);
+            glDisable(GL_TEXTURE_GEN_Q);
+
+            glDisable(GL_ALPHA_TEST);
+        }
+
+        glDisable(GL_BLEND);
+    }
 }
 
 void GLViewport::resizeGL(int w, int h)
 {
     updateCameraProjection();
     QGLWidget::resizeGL(w, h);
-    unsigned layersCount = layers.size();
-    setLayers(0);
-    setLayers(layersCount);
 }
-
-//QMatrix4x4 GLViewport::toQMatrix4x4(GLdouble a[])
-//{
-//    QMatrix4x4 m;
-//    for (int i=0; i<4; ++i)
-//        m.setColumn(i, QVector4D(a[i*4], a[1+i*4], a[2+i*4], a[3+i*4]));
-//    return m;
-//}
 
 void GLViewport::getDoubleArray(QVector4D v, GLdouble a[])
 {
@@ -657,20 +457,23 @@ void GLViewport::getDoubleArray(QVector4D v, GLdouble a[])
     a[3] = v.w();
 }
 
+Light GLViewport::withEyeCoords(Light *l)
+{
+    Light o(l);
+
+    QMatrix4x4 sc;
+    sc.scale(4.0, 4.0, 3.4);
+    o.setPos(sc.mapVector(l->getPos()) + QVector3D(0.0, 4.0, -4.5));
+    return o;
+}
+
 void GLViewport::updateCameraProjection()
 {
-    double hor = max(static_cast<double>(width()-200)/static_cast<double>(height()),1.0);
-    double ver = max(static_cast<double>(height())/static_cast<double>(width()-200),1.0);
+    double hor = max(static_cast<double>(width())/static_cast<double>(height()),1.0);
+    double ver = max(static_cast<double>(height())/static_cast<double>(width()),1.0);
 
     cameraProjection.setToIdentity();
     cameraProjection.frustum((-hor)*fieldOfView, hor*fieldOfView, (-ver)*fieldOfView, ver*fieldOfView, 1.0, 25.0);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glFrustum((-hor)*fieldOfView, hor*fieldOfView, (-ver)*fieldOfView, ver*fieldOfView, 1.0, 25.0);
-    glGetDoublev(GL_MODELVIEW_MATRIX, cameraProjection2);
-    glPopMatrix();
 }
 
 void GLViewport::updateCameraView()
@@ -684,48 +487,29 @@ void GLViewport::updateCameraView()
     cameraView.lookAt(eyePosition,
                       getObjectCenter(),
                       UP_DIRECTION);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    gluLookAt(eyePosition.x(), eyePosition.y(), eyePosition.z(),
-              getObjectCenter().x(), getObjectCenter().y(), getObjectCenter().z(),
-              UP_DIRECTION.x(), UP_DIRECTION.y(), UP_DIRECTION.z());
-    glGetDoublev(GL_MODELVIEW_MATRIX, cameraView2);
-    glPopMatrix();
 }
 
-QMatrix4x4 GLViewport::getLightView(Light *light)
+QMatrix4x4 GLViewport::getLightView(Light light)
 {
     QMatrix4x4 lightView;
-    lightView.lookAt(light->getPos().toQVector().toVector3D(),
-                  getObjectCenter(),
-                  UP_DIRECTION);
-    return lightView;
-}
 
-void GLViewport::getLightView(Light *light, GLdouble *matrix)
-{
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    gluLookAt(light->getPos().x(), light->getPos().y(), light->getPos().z(),
-              getObjectCenter().x(), getObjectCenter().y(), getObjectCenter().z(),
-              UP_DIRECTION.x(), UP_DIRECTION.y(), UP_DIRECTION.z());
-    glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
-    glPopMatrix();
+    lightView.lookAt(light.getPos(),
+                     getObjectCenter(),
+                     UP_DIRECTION);
+    if (lightView.determinant() == 0) {
+        lightView.setToIdentity();
+        lightView.lookAt(light.getPos(),
+                         getObjectCenter(),
+                         QVector3D(1.0, 0.0, 0.0));
+    }
+
+    return lightView;
 }
 
 void GLViewport::initLightProjection()
 {
     lightProjection.setToIdentity();
     lightProjection.frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 10.0);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glFrustum(-0.5, 0.5, -0.5, 0.5, 1.0, 20.0);
-    glGetDoublev(GL_MODELVIEW_MATRIX, lightProjection2);
-    glPopMatrix();
 }
 
 QVector3D GLViewport::getObjectCenter()
@@ -733,20 +517,8 @@ QVector3D GLViewport::getObjectCenter()
     return QVector3D(0.0, 1.75*objectScale+2.0, -4.5);
 }
 
-
-//    GLenum names[8] = {GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3, GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7};
-//    if (lightsList != 0) {
-//        glDeleteLists(lightsList, 1);
-//        lightsList = 0;
-//    }
-
-void GLViewport::setLight(Light *light)
+void GLViewport::setLight(Light light)
 {
-
-    glPushMatrix();
-
-    glTranslatef(0.0, 4.0, -4.5);
-    glScalef(4.0, 4.0, 3.4);
 
     qreal color[4];
     GLfloat colorF[4];
@@ -754,56 +526,23 @@ void GLViewport::setLight(Light *light)
 
     glEnable(GL_LIGHT0);
     // Ambient
-    light->getIA().getRgbF(&color[0], &color[1], &color[2], &color[3]);
+    light.getIA().getRgbF(&color[0], &color[1], &color[2], &color[3]);
     for (unsigned j=0; j<4; j++) colorF[j] = float(color[j]);
     glLightfv(GL_LIGHT0, GL_AMBIENT, colorF);
     // Specular
-    light->getIS().getRgbF(&color[0], &color[1], &color[2], &color[3]);
+    light.getIS().getRgbF(&color[0], &color[1], &color[2], &color[3]);
     for (unsigned j=0; j<4; j++) colorF[j] = float(color[j]);
     glLightfv(GL_LIGHT0, GL_SPECULAR, colorF);
     // Diffuse
-    light->getID().getRgbF(&color[0], &color[1], &color[2], &color[3]);
+    light.getID().getRgbF(&color[0], &color[1], &color[2], &color[3]);
     for (unsigned j=0; j<4; j++) colorF[j] = float(color[j]);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, colorF);
     // Position
-    light->getPos().getArray(position);
+    position[0] = light.getPos().x();
+    position[1] = light.getPos().y();
+    position[2] = light.getPos().z();
     glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-    glPopMatrix();
-
-//    QMatrix4x4 scale;
-//        scale.scale(4.0, 4.0, 3.4);
-//        firstLightPOV = scale.mapVector(lights.at(0)->getPos().toQVector().toVector3D()) + QVector3D(0.0, 4.0, -4.5);
-//        updateLightMatrices();
-
-//        lightsList = glGenLists(1);
-//        glNewList(lightsList, GL_COMPILE);
-
-//            glMatrixMode(GL_MODELVIEW);
-
-//            glDisable(GL_LIGHTING); // Disable lighting to render the spheres
-//            glEnable(GL_COLOR_MATERIAL);
-
-//            for (unsigned i=0; i<lights.size(); i++) {
-
-//                // Sphere
-//                glPushMatrix();
-//                glTranslatef(position[0], position[1], position[2]);
-//                glColor4fv(colorF);
-//                GLUquadric *q = gluNewQuadric();
-//                gluSphere(q, 0.02, 50, 10);
-//                gluDeleteQuadric(q);
-//                glPopMatrix();
-
-//            }
-
-//            glEnable(GL_LIGHTING);
-//            glDisable(GL_COLOR_MATERIAL);
-
-//            glPopMatrix();
-
-//        glEndList();
-//    }
 }
 
 void GLViewport::loadPolygonMaterial(Material *material) {
@@ -882,26 +621,5 @@ void GLViewport::loadMaterial(Material *material) {
         for (unsigned j=0; j<4; j++) colorF[j] = float(color[j]);
         glMaterialfv(GL_FRONT, GL_EMISSION, colorF);
         glMaterialf(GL_FRONT, GL_SHININESS, material->getQ());
-    }
-}
-
-void GLViewport::setLayers(int n)
-{
-//    qDebug() << "setting layers to " << n;
-    while (layers.size() < n) {
-        GLuint id;
-        glGenTextures(1, &id);
-        glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width()-2*FUCK, height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        layers.push_back(id);
-    }
-    while (layers.size() > n) {
-        glDeleteTextures(1, &layers.last());
-        layers.pop_back();
     }
 }
