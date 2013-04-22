@@ -8,84 +8,88 @@
 
 #include "light.h"
 #include "material.h"
-class ObjectModel;
 
-class GLViewport : public QGLWidget
-{
-public:
-    GLViewport(QWidget *parent);
+namespace jEle {
 
-    QColor getBackgroundColor() const;
-    void setBackgroundColor(QColor&);
-    Material *getDefaultMaterial() const;
-    void setDefaultMaterial(Material*);
-    ObjectModel *getObjectModel() const;
-    void setObjectModel(ObjectModel*);
-    void setLights(std::vector<Light*> &lights);
+    class ObjectModel;
 
-    void increaseRotation(double x, double y);
+    class GLViewport : public QGLWidget
+    {
+    public:
+        GLViewport(QWidget *parent);
 
-protected:
-    void initializeGL();
-    void paintGL();
-    void resizeGL(int w, int h);
+        QColor getBackgroundColor() const;
+        void setBackgroundColor(QColor&);
+        Material *getDefaultMaterial() const;
+        void setDefaultMaterial(Material*);
+        ObjectModel *getObjectModel() const;
+        void setObjectModel(ObjectModel*);
+        void setLights(std::vector<Light*> &lights);
 
-    void mousePressEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void wheelEvent(QWheelEvent *);
+        void increaseRotation(double x, double y);
 
-private:
-    void setLight(Light);
-    void loadPolygonMaterial(Material *material);
-    void loadTexture(Material *material);
-    void loadDefaultMaterial();
-    void loadMaterial(Material *material);
+    protected:
+        void initializeGL();
+        void paintGL();
+        void resizeGL(int w, int h);
 
-    void renderEnvironment();
-    void renderObject();
+        void mousePressEvent(QMouseEvent *);
+        void mouseReleaseEvent(QMouseEvent *);
+        void mouseMoveEvent(QMouseEvent *);
+        void wheelEvent(QWheelEvent *);
 
-    void updateCameraView();
-    void updateCameraProjection();
-    void initLightProjection();
-    QMatrix4x4 getLightView(Light);
-    void getLightView(Light *, GLdouble *);
+    private:
+        void setLight(Light);
+        void loadPolygonMaterial(Material *material);
+        void loadTexture(Material *material);
+        void loadDefaultMaterial();
+        void loadMaterial(Material *material);
 
-    QVector3D getObjectCenter();
-    void getDoubleArray(QVector4D, GLdouble a[]);
-    Light withEyeCoords(Light *);
+        void renderEnvironment();
+        void renderObject();
 
-    Material *lastPolygonMaterial;
+        void updateCameraView();
+        void updateCameraProjection();
+        void initLightProjection();
+        QMatrix4x4 getLightView(Light);
+        void getLightView(Light *, GLdouble *);
 
-    QColor backgroundColor;
-    Material *defaultMaterial;
-    ObjectModel *objectModel;
+        QVector3D getObjectCenter();
+        void getDoubleArray(QVector4D, GLdouble a[]);
+        Light withEyeCoords(Light *);
 
-    QMatrix4x4 objectRotation;
-    double objectShiftX;
-    double objectShiftY;
-    double objectScale;
-    double fieldOfView;
-    double eyePositionPitch, eyePositionYaw;
+        Material *lastPolygonMaterial;
 
-    QPoint lastMousePos;
-    bool shiftMode;
+        QColor backgroundColor;
+        Material *defaultMaterial;
+        ObjectModel *objectModel;
 
-    QMap<QString, GLuint> textures;
+        QMatrix4x4 objectRotation;
+        double objectShiftX;
+        double objectShiftY;
+        double objectScale;
+        double fieldOfView;
+        double eyePositionPitch, eyePositionYaw;
 
-    Material ground, wall;
+        QPoint lastMousePos;
+        bool shiftMode;
 
-    QMatrix4x4 cameraView, cameraProjection, lightProjection;
+        QMap<QString, GLuint> textures;
 
-    //Shadow mapping
-    GLuint shadowMapFB;
-    GLuint shadowMapTexture;
+        Material ground, wall;
 
-    const GLuint shadowMapSize;
+        QMatrix4x4 cameraView, cameraProjection, lightProjection;
 
-    std::vector<Light*> lights;
-    Light dimLight;
+        //Shadow mapping
+        GLuint shadowMapFB;
+        GLuint shadowMapTexture;
 
-};
+        const GLuint shadowMapSize;
 
+        std::vector<Light*> lights;
+        Light dimLight;
+
+    };
+
+}
 #endif // GLVIEWPORT_H

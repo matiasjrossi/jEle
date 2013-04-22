@@ -6,21 +6,26 @@
 #include <QVector>
 #include <QStack>
 #include <QFile>
-class ObjectModel;
 
-class OBJReader
-{
-public:
-    static ObjectModel *openOBJ(QString filename);
-private:
-    OBJReader(QString &filename);
-    void parseMTL(QString filename);
-    void pushFile(QString &filename);
-    void popFile();
-    QStack<QString> filenames;
-    QStack<QFile*> files;
-    QStack<unsigned> lineno;
-    ObjectModel *om;
-};
+namespace jEle {
+
+    class ObjectModel;
+
+    class OBJReader
+    {
+    public:
+        static ObjectModel *openOBJ(QString filename);
+    private:
+        OBJReader(QString &filename);
+        void parseMTL(QString filename);
+        void pushFile(QString &filename);
+        void popFile();
+        QStack<QString> filenames;
+        QStack<QFile*> files;
+        QStack<unsigned> lineno;
+        ObjectModel *om;
+    };
+
+}
 
 #endif // OBJREADER_H
