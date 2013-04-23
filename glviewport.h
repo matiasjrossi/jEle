@@ -1,7 +1,7 @@
 #ifndef GLVIEWPORT_H
 #define GLVIEWPORT_H
 
-#include <QtOpenGL/QGLWidget>
+#include <QtOpenGL>
 #include <vector>
 #include <QMatrix4x4>
 #include <QVector3D>
@@ -13,7 +13,7 @@ namespace jEle {
 
     class ObjectModel;
 
-    class GLViewport : public QGLWidget
+    class GLViewport : public QGLWidget, protected QGLFunctions
     {
     public:
         GLViewport(QWidget *parent);

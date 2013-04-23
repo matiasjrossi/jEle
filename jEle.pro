@@ -31,3 +31,4 @@ RESOURCES += \
 QT += opengl
 
 mac: LIBS += -framework GLUT
+unix:!macx|win32: LIBS += -lfreeglut

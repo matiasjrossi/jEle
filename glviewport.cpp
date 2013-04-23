@@ -1,9 +1,16 @@
 #include "glviewport.h"
 
 #ifdef Q_WS_MACX
-  #include <GLUT/glut.h>
+    #include <GLUT/glut.h>
 #else
-  #include <GL/glut.h>
+    #include <GL/glut.h>
+#endif
+
+#ifdef Q_WS_WIN
+    #define GL_DEPTH_TEXTURE_MODE_ARB      0x884B
+    #define GL_TEXTURE_COMPARE_MODE_ARB    0x884C
+    #define GL_TEXTURE_COMPARE_FUNC_ARB    0x884D
+    #define GL_COMPARE_R_TO_TEXTURE_ARB    0x884E
 #endif
 
 #include <QDebug>
@@ -278,6 +285,8 @@ namespace jEle {
 
     void GLViewport::initializeGL()
     {
+        initializeGLFunctions();
+
         glShadeModel(GL_SMOOTH);
         glEnable(GL_CULL_FACE);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -418,7 +427,7 @@ namespace jEle {
                 glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
                 glEnable(GL_TEXTURE_2D);
 
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
                 glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_ALPHA);
 
