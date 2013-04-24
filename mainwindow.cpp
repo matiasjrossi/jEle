@@ -170,7 +170,6 @@ namespace jEle {
         Light *l = new Light();
         lightsContext.push_back(l);
         ui->lightsListWidget->setCurrentItem(new QListWidgetItem(vector2String(l->getPos()), ui->lightsListWidget));
-        ui->lightsAddButton->setEnabled(ui->lightsListWidget->count() < 8);
         vp->setLights(lightsContext);
     }
 
